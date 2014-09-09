@@ -1,0 +1,1395 @@
+Changelog:
+Build 204:
+	wildex999:
+		- Changed the default Chunk Unloading Limit config to something more useful and less spammy.
+		Default will now only print a warning if unloading Tile Entities takes 40 ms(One tick = 50 ms), and put the limit per tick to 250 Tile Entities.
+
+Build 203:
+	jdroque: Cleaned up chunk load/unload debug logging.
+
+Build 201:
+	jdroque: Fixed TE unload debug output.
+	jdroque: Fixed TE unload debug logging.
+
+Build 200:
+	jdroque:
+		Don't check unload queue before ticking things anymore.
+		
+		This applies the missing patch from Amaranth's commit
+		
+		Bukkit/CraftBukkit@faa3058f458235ef733f30971256e45cb7d91c6e
+
+Build 199:
+	wildex999:
+		- Added more control to chunk unloading to improve performance.
+		- Added configuration options to control chunk unloading queuing.
+		- Added debug/logging on chunk and Tile Entity unloading and performance implications.
+		- Added configuration options for controlling debug/logging output.
+	wildex999: Fix: Not showing the Unload queue warning message should not disable the limit.
+
+Build 198:
+	jdroque:
+		Removed Spigot's chunk radius cap of 7 for players. Fixes #1226
+		
+		The following Spigot patch was changed :
+		
+		https://github.com/SpigotMC/Spigot/blob/master/CraftBukkit-Patches/0006-Better-Chunk-Tick-Selection.patch
+
+Build 197:
+	jdroque: Fixed PlayerChangedWorldEvent not firing due to wrong world. Fixes #1663
+
+Build 196:
+	jdroque:
+		Fixed PlayerChangedWorldEvent not firing due to wrong world. Fixes #1663
+		
+		* Fixed bukkit channel registration for players. Fixes #1621, #1666
+
+Build 195:
+	jdroque: Fixed PlayerChangedWorldEvent not firing due to wrong world. Fixes #1663
+
+Build 194:
+	jdroque: Fixed bukkit channel registration for players. Fixes #1621, #1666
+
+Build 193:
+	jdroque:
+		Fixed dupe with tree sapling and bonemeal. Fixes #1648
+		
+		Thanks to Shevchik for pointing out bug.
+
+Build 192:
+	jdroque: Fixed derp in previous commit.
+
+Build 191:
+	jdroque:
+		Fixed dupe with tree sapling and bonemeal. Fixes #1648
+		
+		Thanks to Shevchik for pointing out bug.
+
+Build 190:
+	jdroque:
+		Fixed dupe with tree sapling and bonemeal. Fixes #1648
+		
+		Thanks to Shevchik for pointing out bug.
+		
+		* Wrapped Bukkit's PlayerInteractEvent's inside Forge's event.
+
+Build 189:
+	jdroque:
+		Re-enabled ChunkGC by default.
+		
+		ChunkGC was previously disabled due to a bug with IC2. However, I realized
+		that ChunkGC was not the issue and that the IC2 bug was actually caused by
+		keepSpawnInMemory which I fixed in this commit :
+		
+		MinecraftPortCentral/Cauldron@19253e084ac8f687adc061bb3d7943c33b29a6eb
+
+Build 188:
+	rikingcoding: Pre-satisfy Bukkit plugin dependencies on Cauldron
+
+Build 187:
+	jdroque: Replace material name colons with underscores. Fixes #1615
+
+Build 186:
+	jdroque: Added missed Spigot patch to EntityTracker. Fixes #1618
+
+Build 185:
+	jdroque:
+		Updated Spigot Timings.
+		
+		The following patches have been applied :
+		
+		https://github.com/SpigotMC/Spigot/blob/master/Bukkit-Patches/0002-Spigot-Timings.patch
+		
+		https://github.com/SpigotMC/Spigot/blob/master/CraftBukkit-Patches/0013-Spigot-Timings.patch
+
+Build 184:
+	jdroque:
+		Updated Spigot Timings.
+		
+		The following patches have been applied :
+		
+		https://github.com/SpigotMC/Spigot/blob/master/Bukkit-Patches/0002-Spigot-Timings.patch
+		
+		https://github.com/SpigotMC/Spigot/blob/master/CraftBukkit-Patches/0013-Spigot-Timings.patch
+
+Build 183:
+	jdroque:
+		Updated Spigot Timings.
+		
+		The following patches have been applied :
+		
+		https://github.com/SpigotMC/Spigot/blob/master/Bukkit-Patches/0002-Spigot-Timings.patch
+		
+		https://github.com/SpigotMC/Spigot/blob/master/CraftBukkit-Patches/0013-Spigot-Timings.patch
+
+Build 182:
+	jdroque:
+		Prevent TravelAgent from being used in custom dimensions. Fixes #1600
+		
+		Added new "TeleportCause.MOD" which will now be used when mods call
+		transferPlayerToDimension. In addition, a PlayerPortalEvent will be fired
+		for mod portals with this cause. This will allow plugins to block
+		teleports to these custom mod dimensions.
+
+Build 181:
+	jdroque:
+		Prevent TravelAgent from being used in custom dimensions. Fixes #1600
+		
+		Added new "TeleportCause.MOD" which will now be used when mods call
+		transferPlayerToDimension. In addition, a PlayerPortalEvent will be fired
+		for mod portals with this cause. This will allow plugins to block
+		teleports to these custom mod dimensions.
+		
+		* Fixed missing import in previous commit.
+
+Build 180:
+	jdroque: Fix derp in TeleportCause javadoc.
+
+Build 179:
+	jdroque:
+		Added latest fixes from master branch.
+		
+		* Added missing checkEntitySpeed and checkBoundingBoxSize checks.
+		* Applied plugin ChunkLoadEvent fix from Sannholm.
+	jdroque:
+		Prevent TravelAgent from being used in custom dimensions. Fixes #1600
+		
+		Added new "TeleportCause.MOD" which will now be used when mods call
+		transferPlayerToDimension. In addition, a PlayerPortalEvent will be fired
+		for mod portals with this cause. This will allow plugins to block
+		teleports to these custom mod dimensions.
+
+Build 177:
+	jdroque: Only check living entities in checkBoundingBoxSize hook.
+
+Build 176:
+	jdroque:
+		Update Forge to 10.13.0.1207. Fixed overworld plugin generator.
+		
+		* Added missing checkBoundingBoxSize check from v164 branch.
+		The checkBoundingBoxSize hook will prevent living entities with abnormal
+		boundingBoxes to run through the collision detection and avoid causing major lag on
+		servers. This hook is now enabled by default.
+		
+		* Added missing checkEntitySpeed check from v164 branch.
+
+Build 175:
+	benjamin: Fixed ChunkLoadEvent not being called
+
+Build 174:
+	rikingcoding: Generate friendly names in CraftEnchantment
+	rikingcoding:
+		Search the Ore Dictionary in Material.matchMaterial
+		
+		It's annoying that the OreDictionary.getOreID(String) function will grab
+		a new ID if the name passed in is new... needed to create the map to
+		make sure it won't keep making new ones.
+		
+		Conflicts:
+			patches/org/bukkit/Material.java.patch
+
+Build 173:
+	rikingcoding: Generate friendly names in CraftEnchantment
+	rikingcoding:
+		Search the Ore Dictionary in Material.matchMaterial
+		
+		It's annoying that the OreDictionary.getOreID(String) function will grab
+		a new ID if the name passed in is new... needed to create the map to
+		make sure it won't keep making new ones.
+	rikingcoding: Add cauldron-src symlink to eclipse-workspace-dev.zip
+
+Build 172:
+	rikingcoding:
+		Add a Bukkit plugin interface to the ore dictionary
+		
+		Conflicts:
+			src/main/java/org/bukkit/craftbukkit/CraftServer.java
+	rikingcoding: Patch SimpleServicesManager to handle null plugins
+	rikingcoding: Add javadocs to api classes, getName() in OredictEntry
+	rikingcoding: Add Bukkit interface for Forge's FishingHooks
+	rikingcoding: Fix the plugin-api commits for 1.6.4
+
+Build 171:
+	jdroque:
+		Fixed plugin generator not being initialized in overworld. Fixes #1584
+		
+		Due to the requirement of plugins being loaded after overworld initializes
+		its world info, the plugin generator for overworld would always be null.
+		In order to workaround this issue, the overworld generator will now be
+		initialized after plugins are loaded to ensure plugins such as TerrainControl
+		work properly when configured for the main world.
+
+Build 170:
+	cobblebone: Fixed PlayerExpChangeEvent call
+
+Build 169:
+	jdroque: Update to Forge 10.13.0.1206
+
+Build 168:
+	rikingcoding: Add javadocs to api classes, getName() in OredictEntry
+	rikingcoding: Add Bukkit interface for Forge's FishingHooks
+	rikingcoding: Group output of @MCVersion coremod warnings
+
+Build 167:
+	rikingcoding: Add a Bukkit plugin interface to the ore dictionary
+	rikingcoding: Patch SimpleServicesManager to handle null plugins
+
+Build 166:
+	rikingcoding: Add symlink from eclipse/cauldron to src in project root
+	rikingcoding:
+		Move CustomModRecipe into inventory package
+		
+		What the heck was it doing in potion/ ?
+
+Build 165:
+	rikingcoding: Remove unused imports in Cauldron-original classes
+	rikingcoding: The config field in MinecraftServer is static, so use it that way
+
+Build 164:
+	jdroque:
+		Fixed TileEntityCache being overridden with other data.
+		
+		* Fixed tileentity classes showing up without dashes in config.
+
+Build 163:
+	jdroque:
+		Fixed TileEntityCache being overridden with other data.
+		
+		* Cleaned up world configuration.
+		* Fixed entity immediate despawn setting.
+		* Fixed tileentity classes showing up without dashes in config.
+
+Build 162:
+	jdroque: Forgot to regen patches before pushing.
+
+Build 161:
+	jdroque:
+		Fixed TileEntityCache being overridden with other data.
+		
+		* Cleaned up world configuration.
+		* Fixed entity immediate despawn setting.
+
+Build 160:
+	jdroque: Cleaned up world configuration.
+
+Build 159:
+	jdroque: Added missed transferPlayerToDimension method. Fixes #1572
+
+Build 158:
+	jdroque:
+		Fixed entity immediate despawn setting.
+		
+		By default this setting will be turned on and despawn entities immediately
+		when no players are near. If you are running a server where entity farms
+		are allowed then make sure to disable this option.
+		
+		This setting will be located in cauldron.yml as "entity-despawn-immediate".
+		As this is a world setting, you can turn it on or off per world or
+		configure the default setting to affect all worlds.
+
+Build 157:
+	jdroque:
+		Fixed respawn event firing incorrectly.
+		
+		PlayerRespawnEvent will now only fire after a player has died or is
+		returning from the End.
+		
+		* Fixed plugin teleports being restricted by WorldProvider canRespawnHere.
+
+Build 156:
+	jdroque:
+		Fixed respawn event firing incorrectly.
+		
+		PlayerRespawnEvent will now only fire after a player has died or is
+		returning from the End.
+		
+		* Fixed plugin teleports being restricted by WorldProvider canRespawnHere.
+
+Build 155:
+	jdroque:
+		Fixed respawn event firing incorrectly.
+		
+		PlayerRespawnEvent will now only fire after a player has died or is
+		returning from the End.
+		
+		* Fixed plugin teleports being restricted by WorldProvider canRespawnHere.
+
+Build 154:
+	jdroque:
+		Refactored entity teleport and respawning logic. Fixes #1429, #1439
+		
+		Prior to this commit, all player teleport/respawn logic would lead to one
+		single method. This caused various issues over time as vanilla seperated
+		these methods to make everything more "sane". This refactor reverts back
+		to how vanilla originally handled it. The new logic will work as follows :
+		
+		1. If a player comes in contact with a portal, the
+		transferPlayerToDimension method will be called. This method is not
+		bed-aware.
+		
+		Note: The only exception is when a player returns from the end as it will
+		not call this method but rather respawnPlayer instead.
+		
+		2. If a player dies or returns from the end, the respawnPlayer method will
+		be called. This method is bed-aware.
+		
+		3. Plugins, such as MultiVerse, that call CraftPlayer.teleport will use
+		the respawnPlayer method to be bed-aware.
+		
+		Other changes included with this commit :
+		
+		* Moved PlayerChangedWorldEvent to FMLCommonHandler to handle mods such as
+		Mystcraft that do not use ServerConfigurationManager.
+		
+		* Cleaned up player container listener logic. If container listener
+		exists, we will simply inform client of any detected container changes.
+		
+		* Added thread-safe patch for iterating loaded chunks in ChunkProviderServer
+		
+		Overall, this new commit will add better compatibility between Forge and
+		Bukkit when teleporting a player to a dimension.
+		
+		As this commit brings forth a pretty big change to transport code, it is
+		recommended to take a complete backup before using as there may be issues
+		that were not discovered during testing.
+
+Build 153:
+	jdroque:
+		Refactored entity teleport and respawning logic. Fixes #1429, #1439, #1560
+		
+		Prior to this commit, all player teleport/respawn logic would lead to one
+		single method. This caused various issues over time as vanilla seperated
+		these methods to make everything more "sane". This refactor reverts back
+		to how vanilla originally handled it. The new logic will work as follows :
+		
+		1. If a player comes in contact with a portal, the
+		transferPlayerToDimension method will be called. This method is not bed-aware.
+		
+		Note: The only exception is when a player returns from the end as it will
+		not call this method but rather respawnPlayer instead.
+		
+		2. If a player dies or returns from the end, the respawnPlayer method will
+		be called. This method is bed-aware.
+		
+		3. Plugins, such as MultiVerse, that call CraftPlayer.teleport will use
+		the respawnPlayer method to be bed-aware.
+		
+		Other changes included with this commit :
+		
+		* Moved PlayerChangedWorldEvent to FMLCommonHandler to handle mods such as
+		Mystcraft that do not use ServerConfigurationManager.
+		
+		* Cleaned up player container listener logic. If container listener
+		exists, we will simply inform client of any detected container changes.
+		
+		* Fixed LivingHurtEvent not being called in some situations.
+		
+		Overall, this new commit will add better compatibility between Forge and
+		Bukkit when teleporting a player to a dimension.
+		
+		As this commit brings forth a pretty big change to transport code, it is
+		recommended to take a complete backup before using as there may be issues
+		that were not discovered during testing.
+
+Build 152:
+	jdroque: Added thread-safe patch for iterating loaded chunks in ChunkProviderServer.
+
+Build 151:
+	jdroque:
+		Refactored entity teleport and respawning logic. Fixes #1429, #1439
+		
+		Prior to this commit, all player teleport/respawn logic would lead to one
+		single method. This caused various issues over time as vanilla seperated
+		these methods to make everything more "sane". This refactor reverts back
+		to how vanilla originally handled it. The new logic will work as follows :
+		
+		1. If a player comes in contact with a portal, the transferPlayerToDimension
+		method will be called. This method is not bed-aware.
+		
+		Note: The only exception is when a player returns from the end as it will
+		not call this method but rather respawnPlayer instead.
+		
+		2. If a player dies or returns from the end, the respawnPlayer method will
+		be called. This method is bed-aware.
+		
+		3. Plugins, such as MultiVerse, that call CraftPlayer.teleport will use the
+		respawnPlayer method to be bed-aware.
+		
+		Other changes included with this commit :
+		
+		* Moved PlayerChangedWorldEvent to GameRegistry to handle mods such as
+		Mystcraft that do not use ServerConfigurationManager.
+		
+		* Cleaned up player container listener logic. If container listener
+		exists, we will simply inform client of any detected container changes.
+		
+		Overall, this new commit will add better compatibility between Forge and
+		Bukkit when teleporting a player to a dimension.
+		
+		As this commit brings forth a pretty big change to transport code, it is
+		recommended to take a complete backup before using as there may be issues
+		that were not discovered during testing.
+
+Build 150:
+	jdroque:
+		Make sure the player container is listening on respawn. Fixes #971
+		
+		This should fix the last known issue with TerraFirmCraft.
+
+Build 149:
+	jdroque: Removed old skull patch which is no longer needed. Fixes #1557
+
+Build 148:
+	jdroque: Handle multiworld reloads properly. Fixes #1555
+
+Build 147:
+	jdroque:
+		Updated 1.7.2 branch with latest fixes from master. Fixes #1385
+		
+		* Pass proper worldserver object during processPlayerBlockPlacement.
+		* Force plugins to queue chunks for unload.
+		* Refactored player death item drops.
+		* Added better debug during TileEntity creation.
+		* Fixed command blocks.
+		* Added new FML option 'fml.doNotBackup' to skip backups.
+
+Build 146:
+	jdroque: Update to Forge 10.13.0.1199
+
+Build 145:
+	jdroque:
+		Updated branch with latest 1.6 fixes.
+		
+		* Pass proper worldserver object during processPlayerBlockPlacement.
+		Fixes #1515
+		
+		* Force plugins to queue chunks for unload.
+		* Refactored player death item drops.
+		* Added better debug during TileEntity creation.
+
+Build 144:
+	jdroque:
+		Force plugins to queue chunks for unload. Fixes #1208
+		
+		CraftWorld.unloadChunk attempted to unload a chunk immediately instead of
+		going through the standard ChunkProviderServer unload queue. This caused
+		various issues with mods such as IC2 during server startup if a plugin
+		attempted to call this method.
+		All chunk unload requests from plugins such as MultiVerse, will now be queued
+		and unload during the next world tick.
+
+Build 143:
+	jdroque: Fixed derp with debug in TileEntity. Fixes #1546
+
+Build 142:
+	jdroque:
+		Refactored player death item drops. Fixes #877
+		
+		* Added debug for TileEntity creation crashes.
+		
+		The original CraftBukkit patch for EntityPlayerMP.onDeath broke
+		compatibility with certain Forge mods such as MB: BattleGear 2.
+		To fix this issue, I now call the proper inventory.dropAllItems() method
+		and send the captured drops to plugins in PlayerDeathEvent.
+
+Build 141:
+	jdroque:
+		Updated branch with latest 1.7 fixes.
+		
+		The following commits have been merged into this branch :
+		
+		MinecraftPortCentral/Cauldron@695b775785889d6def933b5bc8baafe0c145d567
+		MinecraftPortCentral/Cauldron@36ef614114cd33c8bfb9cb4bc5fa538dbf239108
+		MinecraftPortCentral/Cauldron@48c6a81e5c930d869621d933aacdfcf2b5e71f51
+		MinecraftPortCentral/Cauldron@21927d529d0f53b24f1f3552c265be16de27f5a8
+		MinecraftPortCentral/Cauldron@6eea3024612e200714e5b242dbdc54e5edb2471f
+		
+		Also applied the following fix :
+		
+		* Added better debugging for mods that exceed network queue limit.
+
+Build 140:
+	jdroque: Handle GameProfiles with no UUID. Fixes #1519
+
+Build 139:
+	jdroque: Fixed command blocks. Fixes #1507
+
+Build 138:
+	jdroque: Fixed proxy world issues with Spigot Config. Fixes #1538
+
+Build 137:
+	jdroque: Update to Forge 10.13.0.1197
+
+Build 136:
+	jdroque: Make NibbleArray data public as Forge does. Fixes #1527
+	jdroque: Added check for null configs in Proxy Worlds. Fixes #1516
+	jdroque:
+		Added detection for corrupt TileEntities. Fixes #1518
+		
+		Corrupted TileEntities will now be removed automatically if detected. The
+		details of the TE will be printed to terminal to help debug the issue.
+		
+		This was based on my 1.6 commit
+		MinecraftPortCentral/Cauldron@051136266c53aaadbad96b42fdd94cedc2b16f29
+	jdroque:
+		Prevent invalid characters in TileEntity config.
+		
+		This should prevent YAML startup crashes when a mod uses an odd classname
+		for their TileEntity.
+	jdroque: Fixed damage being applied twice to players. Fixes #1513
+
+Build 135:
+	jdroque:
+		More bug fixes for PluginClassLoader to support Citizens 2 release.
+		
+		* Removed 1.6.1 and 1.6.2 mappings to free up some space with builds.
+	jdroque:
+		Updated 1.7.2 branch with latest fixes from master. Fixes #1510
+		
+		Applied the following commits from master
+		
+		MinecraftPortCentral/Cauldron@695b775785889d6def933b5bc8baafe0c145d567
+		MinecraftPortCentral/Cauldron@a6180c586f53f1979615dddb954416cf97de6475
+		MinecraftPortCentral/Cauldron@d8cb72ca6c8c53a6bdbd9707a353bf27bcf757b2
+		MinecraftPortCentral/Cauldron@36ef614114cd33c8bfb9cb4bc5fa538dbf239108
+		MinecraftPortCentral/Cauldron@48c6a81e5c930d869621d933aacdfcf2b5e71f51
+
+Build 132:
+	jdroque:
+		More bug fixes for PluginClassLoader to support Citizens 2 release.
+		
+		* Removed 1.6.1 and 1.6.2 mappings to free up some space with builds.
+
+Build 131:
+	jdroque:
+		Fixed wrong enum name injection for EntityType's.
+		
+		toString() and name() would return "ModId-Name" instead of
+		"MODID_NAME".
+
+Build 130:
+	jdroque:
+		Ignore event damage check for EntityItemFrames. Fixes #1488
+		
+		When a player attempts to remove an item from an EntityItemFrame, CB calls
+		its handleNonLivingEntityDamageEvent method so plugins have the ability to
+		prevent the removal. However, this method also checks to see if the event
+		damage is 0 and if so cancels the removal which in this case causes the bug to
+		happen.
+	me: Fixing crash when InventoryMoveItemEvent is cancelled. (wrong variable used)
+	jdroque:
+		Updated README with Top Patron Supporters.
+		
+		Thanks to all my Patrons! The project only becomes better with your
+		support.
+
+Build 127:
+	jdroque: Removed more debug in CraftEventFactory. Fixes #1498
+
+Build 126:
+	jdroque:
+		Moved InventoryType Enum injection to AnvilChunkLoader. Fixes #1482
+		
+		* Removed debug log from CraftEventFactory. Fixes #1493
+
+Build 125:
+	jdroque: Removed misplaced semicolon. Fixes #1486
+
+Build 124:
+	jdroque: Added workaround for isEmpty SS remap bug. Fixes #1487
+
+Build 123:
+	jdroque:
+		Fixed tileentities.yml storing duplicate worlds.
+		
+		* Fixed typo in Reload command. Fixes #1473
+
+Build 122:
+	jdroque:
+		Fixed tileentities.yml storing duplicate worlds.
+		
+		* Fixed typo in Reload command. Fixes #1473
+
+Build 121:
+	jdroque:
+		Updated branch with latest fixes/changes from 1.7.10.
+		
+		Applied the following commits from 1.7.10 branch
+		
+		MinecraftPortCentral/Cauldron@6eea3024612e200714e5b242dbdc54e5edb2471f
+		MinecraftPortCentral/Cauldron@21927d529d0f53b24f1f3552c265be16de27f5a8
+
+Build 120:
+	jdroque:
+		Updated SRG mappings to 1.7.10. Fixes #1472
+		
+		* Added support for remapping CB NMS to MCP classes through
+		  PluginClassLoader.findClass(name). This should help plugins
+		  that use NMS and want to add support for Cauldron.
+		* Removed unneeded srg files from mappings to shrink the jar size.
+
+Build 119:
+	jdroque:
+		Refactored configuration. Fixed tileentity skip tick feature. Fixes #1432
+		
+		* Refactored configuration classes to support multiple config files.
+		
+		* Moved tileentity config out of cauldron.yml to its own file due to the
+		  amount of tileentities that can be generated by mods. The new file can
+		  be found in the root directory called "tileentities.yml".
+		  - added new skip-tileentity-ticks setting to disable TE tick skips.
+		    Useful for bug tracking.
+		
+		* Added config debug options for tileentities which are now
+		  disabled by default.
+		
+		* Removed Spigot's guardEntityList.
+
+Build 118:
+	wesley.d.wolfe+git: Provide modifier functions to EntityDamageEvent. Fixes BUKKIT-5688
+
+Build 117:
+	jdroque: Fixed Enchantment patch. Updated Forge to 10.13.0.1187. Fixes #1461
+
+Build 116:
+	jdroque: Fixed patches.
+
+Build 115:
+	jdroque: Updated Forge/FML submodule
+
+Build 114:
+	jdroque:
+		Handle entity damage causes for mods. Fixes #1433
+		
+		* Updated Forge to 10.13.0.1186
+		
+		* Applied the following CraftBukkit patches :
+		
+		Bukkit/CraftBukkit@66c314d5b2d8ca0e99059ca8cf6b905a33baf9d7
+		Bukkit/CraftBukkit@f6dffcf901efbba1072d0f25617d55c0e8c93ee6
+
+Build 113:
+	jdroque: Forgot build.gradle
+	jdroque:
+		Added TileEntity NBT support for BlockStates
+		
+		Plugins that call BlockState.update should now properly restore TileEntity
+		data if it exists.
+		
+		* Added SpawnReason compatibility for custom spawns made by mods assuming
+		  they call the correct events. This fixes Prism logging issues with
+		  "entity-spawn" action.
+		  - Any mod calling LivingSpawnEvent.CheckSpawn will set SpawnReason.NATURAL
+		  - Any mod calling LivingSpawnEvent.SpecialSpawn will set SpawnReason.SPAWNER
+		
+		* Added support for running 1.7.9+ plugins in Cauldron dev environment
+
+Build 112:
+	jdroque: Update to Forge 10.13.0.1182
+
+Build 111:
+	jdroque: Missed part of the S3F patch. Fixes #1433
+
+Build 110:
+	jdroque:
+		Apply lost FML S3FPacketCustomPayload patch. Fixes #1433
+		
+		- FML expands S3F to support payloads up to 2 megs in size
+
+Build 109:
+	jdroque: Fixed invalid UUID's with FakePlayers. Fixes #1423
+
+Build 108:
+	jdroque: Fixed another crash with FakePlayerFactory checking hashCode. Fixes #1417
+
+Build 107:
+	jdroque: Fixed another crash with FakePlayerFactory checking hashCode. Fixes #1417
+
+Build 106:
+	jdroque: Fixed AsyncPlayerPreLoginEvent. Fixes #1407
+
+Build 105:
+	jdroque:
+		Updated jsons with latest scala changes.
+		
+		Don't forget to rerun the installer to get latest libraries.
+
+Build 104:
+	jdroque: Update to Forge 10.13.0.1179
+
+Build 103:
+	jdroque: Fixed derp with previous commit. Cleaned up some code.
+
+Build 102:
+	jdroque: Fixed derp with previous commit. Fixed ThreadPlayerLookupUUID. Fixes #1398
+
+Build 101:
+	jdroque:
+		Fixed chat issues with mods such as Psychedelicraft.
+		
+		Fixes #1041, #1245, #1343
+		
+		When sending messages back to clients, CraftBukkit would use the
+		ChatComponentText object in order to send less data. While this is good,
+		it breaks compatibility with mods that expects a ChatComponentTranslation
+		object. To workaround this compatibility issue, I have modified
+		CraftChatMessage to send a ChatComponentTranslation object in order to
+		maintain compatibility with Forge.
+		
+		* Added support for running plugins in dev environment
+
+Build 100:
+	jdroque:
+		Fixed chat issues with mods such as Psychedelicraft.
+		
+		Fixes #1041, #1245, #1343
+		
+		When sending messages back to clients, CraftBukkit would use the
+		ChatComponentText object in order to send less data. While this is good,
+		it breaks compatibility with mods that expects a ChatComponentTranslation
+		object. To workaround this compatibility issue, I have modified
+		CraftChatMessage to send a ChatComponentTranslation object in order to
+		maintain compatibility with Forge.
+		
+		* Added support for running plugins in dev environment
+
+Build 99:
+	jdroque: Fixed parameter tab completions. Fixes #1358
+
+Build 97:
+	jdroque: Fixed EntityItem Spigot patch. Fixes #1381
+
+Build 96:
+	jdroque: Fixed ItemBucket patch. Fixes #1380
+
+Build 95:
+	jdroque: Fixed param derp with TileEntityHopper.
+
+Build 94:
+	jdroque:
+		Check container inventory before casting to InventoryPlayer. Fixes #1375
+		
+		Added missing EntityFireBall patch from previous commit.
+
+Build 93:
+	jdroque:
+		Added missing patches from new damage api.
+		
+		Moved block damage hook used by EntityDamageByBlockEvent to
+		Entity.doBlockCollisions in order to catch all blocks. Fixes #1373
+		
+		This commit completes the following CraftBukkit commits :
+		
+		Bukkit/CraftBukkit@90bcaaaa4d3e6e92d821064a76f43ed254a606c4
+		Bukkit/CraftBukkit@bd38a0baa2416db811d8d92a9dc5690c94c6b4c4
+		Bukkit/CraftBukkit@0007bba1a20b84c8870d097616c28e77601294f0
+		Bukkit/CraftBukkit@bccc961ddf29fa2c9463e5648fc425a78fa4a7b5
+
+Build 92:
+	jdroque: Update to MC 1.7.10, Forge 10.13.0.1169, and Bukkit 1.7.9-R0.3
+
+Build 90:
+	jdroque: Attempt to fix race condition when attr is null. Fixes #1366
+
+Build 89:
+	jdroque: Removed legacy getBukkitToForge method. This build also does not exist.
+
+Build 88:
+	jdroque: Fixed config derp.
+
+Build 87:
+	jdroque: Another fix to prevent hashCode check with null id.
+
+Build 86:
+	jdroque:
+		Prevent hashCode check with FakePlayer GameProfile's that contain a null id.
+		
+		GameProfile javadocs specify either an ID or name can be null/empty yet it
+		uses the ID in its hashCode method. To workaround this issue, I now search
+		for a matching gameprofile in HashMap, without causing a hashCode check, and
+		create a new FakePlayer if no match is found.
+
+Build 85:
+	jdroque: Fixed derp in config. This build doesn't exist =)
+
+Build 84:
+	jdroque:
+		Added configurable TileEntity tick settings. Refactored configuration.
+		
+		With this new change, each TileEntity that attempts to tick will be added
+		to cauldron.yml under world-settings. There are currently 2 options for
+		each TileEntity.
+		
+		The first option is 'tick-no-players'
+		- This prevents ticks on a TileEntity if there are no players in range
+		  excluding forced chunks with chunkloaders.
+		  The default value is false. Setting this to true will make it tick
+		  with no players nearby. This setting should be set to true for
+		  TileEntities that need to always tick such as ComputerCraft's computer.
+		
+		The second option is 'tick-interval'
+		- This controls how often you want this specific TileEntity to
+		  tick. The default is 1 which means you want it to tick every tick.
+		  Changing this to a value of 20 would mean it would tick every 20 ticks.
+		  Note: this option will only appear when a TE ticks. If the TE has never
+		  ticked before, you will not see this show up in config. You can still
+		  add the option manually to override it when it does tick.
+		
+		The default config will apply to all worlds. If you want to override a
+		specific TE in a world, you would add it to cauldron.yml like the example
+		below :
+		
+		world-settings:
+		  worldname:
+		    tileentities:
+		      net-minecraft-tileentity-TileEntityChest:
+		        tick-no-players: false
+		        tick-interval: 1
+		
+		* added TileEntityCache to improve performance overall with new config.
+		- Whenever a TileEntity ticks, if it hasn't been seen before, a new
+		  TileEntityCache will be created with the data found in config. For each
+		  new tick, the te config data will be accessed from the cache to avoid
+		  performance issues.
+		  If you modify the config, you need to reload by running '/cauldron
+		  reload'. This will update the TileEntityCache so it works immediately.
+		
+		* added caching for entity immediate despawn checks.
+		* Fixed many configuration bugs.
+		* You can now modify anything in cauldron.yml then execute
+		'/cauldron reload' to have it take effect in game. For other configuration
+		options use the '/cauldron' command.
+		* Added StructureStart NPE check to prevent crashes with broken structure
+		components.
+		* ChunkGC is disabled again by default. If you experience a high chunk load,
+		enable chunk-gc in bukkit.yml.
+		Note: as stated in previous commits, you may experience issues with mods with
+		ChunkGC turned on.
+
+Build 83:
+	jdroque:
+		Added TileEntityCache to improve performance overall with new config.
+		
+		Whenever a TileEntity ticks, if it hasn't been seen before, a new
+		TileEntityCache will be created with the data found in config. For each
+		new tick, the te config data will be accessed from the cache to avoid
+		performance issues.
+		If you modify the config, you need to reload by running '/cauldron reload'. This
+		will update the TileEntityCache so it works immediately.
+		
+		* added caching for entity immediate despawn checks.
+
+Build 82:
+	jdroque: Fixed config NPE with DimensionManager. Fixes #1333, #1335
+
+Build 81:
+	jdroque:
+		Final build. Fixes #1327
+		
+		The battle for GC being on and off is finally over, GC stays off.
+		Agarian Skies servers recommended to turn on. IC2, EnderIO, BOP servers
+		are recommended it remains off.
+		
+		To alter setting, use bukkit.yml and change chunk-gc.enabled to false or
+		true.
+		
+		This is the final 1.6.4 build.
+	jdroque:
+		Added configurable TileEntity tick settings. Refactored configuration.
+		
+		With this new change, each TileEntity that attempts to tick will be added
+		to cauldron.yml under world-settings. There are currently 2 options for
+		each TileEntity.
+		
+		The first option is 'tick-no-players'
+		- This prevents ticks on a TileEntity if there are no players in range
+		  excluding forced chunks with chunkloaders.
+		  The default value is false. Setting this to true will make it tick with
+		  no players nearby. This setting should be set to true for TileEntities
+		  that need to always tick such as ComputerCraft's computer.
+		
+		The second option is 'tick-interval'
+		- This controls how often you want this specific TileEntity to tick. The
+		  default is 1 which means you want it to tick every tick. Changing this
+		  to a value of 20 would mean it would tick every 20 ticks.
+		
+		The default config will apply to all worlds. If you want to override a
+		specific TE in a world, you would add it to cauldron.yml like the example
+		below :
+		
+		world-settings:
+		  worldname:
+		    tileentities:
+		      net-minecraft-tileentity-TileEntityChest:
+		        tick-no-players: false
+			tick-interval: 1
+		
+		* Fixed many configuration bugs. You can now modify anything in
+		cauldron.yml then execute '/cauldron reload' to have it take effect in
+		game. For other configuration options use the '/cauldron' command.
+		* Added StructureStart NPE check to prevent crashes with broken structure
+		components.
+		* ChunkGC is disabled again by default. If you experience a high chunk load, enable
+		chunk-gc in bukkit.yml. Note: as stated in previous commits, you may
+		experience issues with mods with ChunkGC turned on.
+
+Build 80:
+	jdroque: Fixed server ping stalling.
+
+Build 78:
+	jdroque:
+		Updated README.
+		
+		Cleaned up some derp code. I need to sleep more and not work on
+		bugs I already fixed =)
+
+Build 77:
+	jdroque:
+		Updated README.
+		
+		Cleaned up some derp code. I need to sleep more and not work on
+		bugs I already fixed =)
+
+Build 76:
+	jdroque:
+		Don't remove players if detected in wrong chunk location.
+		
+		* AgarianSkies servers can suffer a big TPS loss with GC not enabled, so I
+		have decided to just keep it on like MCPC+ always had. If you experience
+		issues, you can set chunk-gc.enabled to false or period-in-ticks to 0.
+
+Build 75:
+	jdroque:
+		Don't remove players if detected in wrong chunk location.
+		
+		* AgarianSkies servers can suffer a big TPS loss with GC not enabled, so I
+		have decided to just keep it on like MCPC+ always had. If you experience
+		issues, you can set chunk-gc.enabled to false or period-in-ticks to 0.
+
+Build 74:
+	jdroque:
+		Added back ChunkGC disabled by default.
+		
+		ChunkGC is disabled by default since it affects mods such as BoP, IC2, and others.
+		If your server is experiencing lag due to mods leaking too many chunks,
+		then you can enable this setting. Be warned that you may experience other
+		issues with this turned on as Forge/Vanilla has no ChunkGC by default.
+		To enable ChunkGC, you need to set chunk-gc: enabled
+		to true in bukkit.yml. You will not see it on first startup unless you
+		save or add it manually.
+		
+		* Fixed skip-ticks-near-unloaded-chunks check.
+		* Added new config option "tileentities.skip-ticks-not-near-player" which
+		is false by default. Enabling this option will skip TileEntity ticks when
+		the player is not near. Forced chunks are not affected.
+
+Build 71:
+	jdroque:
+		Fixed derp with async chunk patch calling wrong method.
+		
+		When I setup a PR for forge, I renamed some methods and managed to screw
+		up a line in ChunkProviderIO which should be calling the sync method
+		originalLoadChunk instead the async method loadChunk resulting in a stackoverflow.
+
+Build 70:
+	jdroque: Fixed entity activation config crash with fake worlds.
+
+Build 69:
+	jdroque: Fixed entity activation config crash with fake worlds.
+
+Build 68:
+	jdroque: Minor logging fix for tracking tiles and entities.
+
+Build 67:
+	jdroque:
+		Fixed possible deadlock during tree gen. Bunch more fixes.
+		
+		Fixes #1306, #1307, #1313
+		
+		* Fixed GameMode command not parsing correctly.
+		* Fixed Cauldron debug logging.
+		* Added entity removal for entities with invalid locations during chunk load.
+		* Added new config option 'entities.skip-ticks-near-unloaded-chunks' which is disabled by default.
+		- If set to false, it can help with performance at the expense of entity wandering into unloaded chunks and moveable chunkloaders.
+		* Moved config option 'world-settings.default.despawn-immediate' to 'world-settings.default.entities.despawn-immediate'
+		* Catch invalid chunkpositions during Stronghold gen
+		* Cleaned up some code
+
+Build 66:
+	jdroque: Update to Forge 10.12.2.1147
+
+Build 65:
+	jdroque:
+		Fixed possible deadlock during tree gen. Bunch more fixes.
+		
+		Fixes #1306, #1313
+		
+		* Fixed commands not working in eclipse console
+		* Fixed Cauldron debug logging.
+		* Added entity removal for entities with invalid locations during chunk
+		* load.
+		* Added missing GameMode used by FakePlayers in Bukkit API.
+		* Added new config option 'entities.skip-ticks-near-unloaded-chunks' which is disabled by default.
+		  - If set to false, it can help with performance at the expense of entity wandering into unloaded chunks and moveable chunkloaders.
+		* Moved config option 'world-settings.default.despawn-immediate' to 'world-settings.default.entities.despawn-immediate'
+		* Removed spawnEntityInWorld async check
+		* Catch invalid chunkpositions during Stronghold gen
+		* Cleaned up some code
+
+Build 64:
+	amaranth:
+		Don't check unload queue before ticking things anymore.
+		
+		In commits 71a238e and c859139 we added checks while ticking to ensure
+		we never ticked anything in a chunk meant to be unloaded. We did this to
+		prevent these chunks being removed from the unload queue and leaked.
+		However, this causes a ridiculously large number of lookups on the queue
+		for a somewhat rare occurance. We also now have the chunk GC which will
+		take care of these leaked chunks when they do happen. With this in mind
+		we now remove these checks which removes almost all uses of the
+		LongHashSet backing the unload queue.
+
+Build 63:
+	amaranth:
+		Don't check unload queue before ticking things anymore.
+		
+		In commits 71a238e and c859139 we added checks while ticking to ensure
+		we never ticked anything in a chunk meant to be unloaded. We did this to
+		prevent these chunks being removed from the unload queue and leaked.
+		However, this causes a ridiculously large number of lookups on the queue
+		for a somewhat rare occurance. We also now have the chunk GC which will
+		take care of these leaked chunks when they do happen. With this in mind
+		we now remove these checks which removes almost all uses of the
+		LongHashSet backing the unload queue.
+
+Build 62:
+	jdroque:
+		Don't skip ticks of entities at edge of chunks.
+		
+		This adds a lost patch which was added back during 1.5.2
+		More info can be found from original commit
+		MinecraftPortCentral/MCPC-Plus-Legacy@b967858555b90ba93a47694d384a82afb8f966c2
+	hannos17:
+		Removing broken chunk caching from World. Fixes BUKKIT-5425
+		
+		Chunk caching in the World class does not know about outdated cache
+		values. This caused various problems when accessing previously unloaded chunks.
+		The caching also did not improve the performance so it is removed.
+		Synchronization is also not necessary, because all accesses to getChunkAt
+		may only come from the main thread.
+
+Build 61:
+	hannos17:
+		Removing broken chunk caching from World. Fixes BUKKIT-5425
+		
+		Chunk caching in the World class does not know about outdated cache
+		values. This caused various problems when accessing previously unloaded chunks.
+		The caching also did not improve the performance so it is removed.
+		Synchronization is also not necessary, because all accesses to getChunkAt
+		may only come from the main thread.
+
+Build 60:
+	jdroque:
+		Don't skip ticks of entities at edge of chunks.
+		
+		This adds a lost patch which was added back during 1.5.2
+		More info can be found from original commit
+		MinecraftPortCentral/MCPC-Plus-Legacy@b967858555b90ba93a47694d384a82afb8f966c2
+
+Build 59:
+	jdroque:
+		Don't skip ticks of entities at edge of chunks.
+		
+		This adds a lost patch which was added back during 1.5.2
+		More info can be found from original commit
+		MinecraftPortCentral/MCPC-Plus-Legacy@b967858555b90ba93a47694d384a82afb8f966c2
+
+Build 58:
+	jdroque: Fixed wrong var used in findMatchingRecipe. Fixes #1206
+
+Build 57:
+	jdroque: Don't skip TE ticks in loaded chunks. Fixes #1285
+
+Build 56:
+	jdroque: Don't skip TE ticks in loaded chunks. Fixes #1285
+
+Build 54:
+	jdroque: Added missing ghost tile entity fix. Fixes #1297
+
+Build 53:
+	jdroque:
+		Forcing a clean jenkins build due to 1.6.4 issue.
+		
+		Both 1.6 and 1.7 will now wipe out the workspace after a build is done.
+		This should solve any issues with resources being mixed in both versions.
+
+Build 52:
+	jdroque: Lets try this again, hopefully jenkins builds correctly this time.
+
+Build 50:
+	jdroque:
+		Removed 1.7 getShooter overmapped mappings.
+		
+		I added these in by mistake =)
+
+Build 49:
+	jdroque:
+		Fixed jline not disabling correctly.
+		
+		This will fix console logging when jline is disabled like our eclipse dev
+		environment.
+
+Build 48:
+	jdroque:
+		Fixed jline not disabling correctly.
+		
+		This will fix console logging when jline is disabled like our eclipse dev
+		environment.
+
+Build 47:
+	jdroque: Added overloaded mappings. Fixes #1283
+
+Build 46:
+	jdroque:
+		Added support for TerrainControl v2.6.1. Fixes #1272
+		
+		SpecialSource has a bug with remapping plugins that extend Minecraft
+		classes. To workaround this issue, I have added the required mappings for
+		TC to work. Keep in mind that TC can break with future updates which will
+		require another update on my end.
+
+Build 45:
+	jdroque: Fixed derp in respawn code.
+
+Build 44:
+	jdroque: Fixed derp in respawn code.
+
+Build 43:
+	jdroque:
+		Added support for plugins detecting MCPC.
+		
+		This should fix any issues with plugins not loading correctly due to the
+		Cauldron name change.
+
+Build 42:
+	jdroque:
+		Added legacy support for plugins detecting MCPC. Fixes #1272, #1187
+		
+		Many plugins are still checking getName() or getVersion() for MCPC so I
+		have decided to keep the name within both strings until plugins adapt to
+		new Cauldron name.
+		
+		* Added support for NMS/OBC package versions R2 and R3. This should allow
+		latest CraftBukkit plugins to load correctly assuming they do not call a
+		new method added post 1.7.2.
+
+Build 41:
+	jdroque: Added some more checks for mods that use Fake Worlds. Fixes #679
+
+Build 40:
+	jdroque: Fixed tab completion with mods and plugins. Fixes #426
+
+Build 39:
+	jdroque: Validate chunkcoordinates during calculateTarget. Fixes #602
+
+Build 38:
+	jdroque: Fixed tab completion with mods and plugins. Fixes #426
+
+Build 37:
+	jdroque:
+		Changed version output for filename.
+		
+		Version will now be as follows : mc-cauldron.forge.build
+		ex. cauldron-1.6.4-1.965.1
+		If I push a major change for cauldron, I will simply increment our version
+		by 1.
+	jdroque: Added missing deprecated methods in GameRegistry.
+	jdroque: Added back modloader since it still exists in last 1.6.4 forge build.
+	jdroque: More changes to get back to compatible FML version. Should fix ID issues.
+	jdroque:
+		Fixed guava10 remapping. Fixed mystcraft age trapping. Fixes #1217
+		
+		Fixed bukkit KillCommand ignoring LivingDeathEvent.
+	jdroque:
+		Finished refactor of EntityItem death drops. Fixes #996
+		
+		This completes the refactor which started in commit
+		MinecraftPortCentral/Cauldron@aadc2f3
+		
+		* Refactored plugin custom entity support
+		- Plugins now have the ability to use the CraftWorld.spawnEntity method to
+		spawn any custom entity. In order for this to work properly, Cauldron will
+		inject all new EntityTypes into the Bukkit enum. Simply pass the custom
+		EntityType to CraftWorld.spawnEntity to spawn it.
+		
+		* Removed most Cauldron custom entity classes as they are no longer used.
+		
+		* Moved horse inventory dropping which was fixed in commit
+		Bukkit/CraftBukkit@fb58cc9
+	jdroque:
+		Refactored respawn code some more. Fixes #637
+		
+		* Fixed bed spawns not being used when location wasn't null.
+		* Fixed broken respawns caused by previous commit.
+	jdroque:
+		Add support for new MobiusCore. Fixes #1231
+		
+		You must update to the latest MobiusCore_1.2.2_1.6.4 or Opis will not work.
+		
+		* Add NMS remapping support for PluginClassLoader's findClass.  Fixes #1253
+		
+		In some cases, plugins may make direct calls to the PluginClassLoader
+		findClass method. Instead of throwing an exception, it will now locate the
+		mapping and pass it off to Forge's LaunchClassLoader.
+		
+		* Change CraftServer.serverName to "Cauldron-MCPC-Plus" to maintain
+		compatibility with plugins looking for old name.
+	jdroque:
+		Added detection for corrupt TileEntities. Fixes #1228
+		
+		Corrupted TileEntities will now be removed automatically if detected. The
+		details of the TE will be printed to terminal to help debug the issue.
+		
+		* fixed another respawn bug with certain mods
+	jdroque: Only check for beds when leaving the End. Fixes #1262
+	jdroque:
+		Fixed build.gradle to support Forge's Jenkins.
+		
+		All future 1.6.4 builds will now be located at
+		http://files.minecraftforge.net/Cauldron/
+		
+		You will need to choose MC version 1.6.4 to see all builds.
+
+Build 35:
+	jdroque: Only check for beds when leaving the End. Fixes #1262
+
+Build 32:
+	jdroque:
+		Fixed wrong Messenger channel size in Bukkit API. Fixes #1260
+		
+		C17PacketCustomPayload channel size was increased from 16 to 20 in 1.7
+		update.
+
+Build 31:
+	jdroque: Fixed respawn bug with HardcoreEnderExpansion. Fixes #1257
+
+Build 30:
+	jdroque:
+		Add missing GameMode used by FakePlayers in Bukkit API. Fixes #1233
+		
+		FakePlayers do not set their GameMode which results in using the default
+		'NOT_SET(-1)' GameMode. Since this does not exist in Bukkit's API, any
+		references from plugins to player.getGameMode() will be null. This commit
+		simply adds the missing gamemode.
+
+Build 29:
+	jdroque: Added back bukkitVersion to fix build script.
+
+Build 28:
+	jdroque: Update to Forge 10.12.2.1126
+	jdroque: Update to Forge 10.12.2.1126
+
+Build 26:
+	jdroque:
+		Refactored respawn code some more. Fixes #637
+		
+		* Fixed bed spawns not being used when location wasn't null.
+		* Fixed broken respawns caused by previous commit.
+
+Build 25:
+	jdroque:
+		Finished refactor of EntityItem death drops.
+		
+		This completes the refactor which started in commit
+		MinecraftPortCentral/Cauldron@aadc2f319f7db308043e4072eb93114604593697
+		
+		* Fixed mystcraft age trapping.
+		* Fixed bukkit KillCommand ignoring LivingDeathEvent.
+		* Moved horse inventory dropping which was fixed in commit
+		Bukkit/CraftBukkit@fb58cc92375d85bfe7a3dc8671c70d1a4e308e3c
+
+Build 21:
+	jdroque:
+		Removed ChunkGC as it can cause a bunch of chunk churning with mods.
+		
+		This should fix the compatibility issue we had with ChickenChunk's
+		cleanupTime chunk GC.
+
+Build 18:
+	jdroque:
+		Refactored log4j2 config for better logging.
+		
+		The default logging level from FML package is now INFO. If you require more
+		output in FML logs, open jar and edit the log4j2.xml in root then change
+		FmlFile's logging level from INFO to something else such as TRACE or DEBUG.
+		
+		* Fixed getBukkitVersion returning Unknown-Version. Fixes #1205
+
+Build 17:
+	jdroque: Fixed plugin initialization during startup. Fixes #1195
+
+Build 16:
+	jdroque: Update Forge to 10.12.1.1112
+
+Build 15:
+	jdroque:
+		Fixed Bukkit material injection not using remapped id's from FML after
+		
+		changing mods. Fixes #1078
+		
+		* Fixed plugin issues with Material Enums being modified after load.
+		Fixes #1084
+		* Renamed eclipse workspace from MCPC to Cauldron
+
+Build 14:
+	jdroque:
+		Add support for Bukkit's version safeguard.
+		
+		Finally got shading working with gradle thanks to AbrarSyed =)
+		This should fix a bunch of plugins that check for a package version.
+		
+		ex. PortableHorses does the following to get server version
+		
+		String packageName = this.getServer().getClass().getPackage().getName();
+		String version = packageName.substring(packageName.lastIndexOf('.')+ 1);
+		
+		This will now work and properly return a valid package version such as
+		"v1_7_R1".
+
+Build 13:
+	rjwboys:
+		Update CauldronConfig.java
+		
+		fixed url of forums
+
+Build 12:
+	jdroque:
+		Fixed FML startup bug when changing mods due to multiple SaveHandlers.
+		
+		Fixes #1068, #1078
+		
+		Forge/Vanilla both use the overworld SaveHandler for all worlds while
+		Cauldron creates a SaveHandler for each world to maintain compatibility
+		with Bukkit plugins. This caused FML to bug out when running it's
+		handleWorldDataLoad hook since it never expects to deal with more than 1
+		savehandler.
+
+Build 11:
+	jdroque:
+		Fixed a potential block removal stackoverflow. Fixes #1165, #1169
+		
+		Removed a CB patch that fixes BUKKIT-5238 to prevent a possible
+		stackoverflow from occuring with specific mods such as Thaumcraft and
+		Carpenter's Blocks.
+
+Build 10:
+	jdroque: Change classifier name to 'server' as we do not support client.
+
+Build 9:
+	jdroque: Fix version in build.gradle
+	jdroque: Fix version in build.gradle
+	jdroque: Add classifier for builds.
+
+Build 3:
+	jdroque: Removed MCP conf data from mappings as it is no longer used.
+
