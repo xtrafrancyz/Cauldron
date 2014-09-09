@@ -1,4 +1,4 @@
-Cauldron
+Cauldron minecraft
 ========
 gradlew setupCauldron
 gradlew buildPackages
