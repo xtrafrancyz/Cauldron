@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>Cauldron</name>
+	<comment/>
+	<projects/>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments/>
+		</buildCommand>
+	</buildSpec>
+	<linkedResources>
+		<link>
+			<name>java</name>
+			<type>2</type>
+			<location>D:/12/Cauldron-164/Cauldron/src/main/java</location>
+		</link>
+		<link>
+			<name>extractedResources</name>
+			<type>2</type>
+			<location>D:/12/Cauldron-164/Cauldron/build/extractedResources</location>
+		</link>
+		<link>
+			<name>resources</name>
+			<type>2</type>
+			<location>D:/12/Cauldron-164/Cauldron/src/main/resources</location>
+		</link>
+	</linkedResources>
+</projectDescription>

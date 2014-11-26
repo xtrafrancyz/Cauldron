@@ -1,8 +1,5 @@
 !.gitignore
 
-# eclipse
-/eclipse
-
 # gradle
 build
 .gradle
