@@ -1,0 +1,36 @@
+--- ../src-base/minecraft/net/minecraft/entity/monster/EntitySpider.java
++++ ../src-work/minecraft/net/minecraft/entity/monster/EntitySpider.java
+@@ -10,6 +10,7 @@
+ import net.minecraft.potion.PotionEffect;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.World;
++import org.bukkit.event.entity.EntityTargetEvent; // CraftBukkit
+ 
+ public class EntitySpider extends EntityMob
+ {
+@@ -105,7 +106,24 @@
+ 
+         if (f1 > 0.5F && this.rand.nextInt(100) == 0)
+         {
+-            this.entityToAttack = null;
++            // CraftBukkit start
++            EntityTargetEvent event = new EntityTargetEvent(this.getBukkitEntity(), null, EntityTargetEvent.TargetReason.FORGOT_TARGET);
++            this.worldObj.getServer().getPluginManager().callEvent(event);
++
++            if (!event.isCancelled())
++            {
++                if (event.getTarget() == null)
++                {
++                    this.entityToAttack = null;
++                }
++                else
++                {
++                    this.entityToAttack = ((org.bukkit.craftbukkit.entity.CraftEntity) event.getTarget()).getHandle();
++                }
++
++                return;
++            }
++            // CraftBukkit end
+         }
+         else
+         {

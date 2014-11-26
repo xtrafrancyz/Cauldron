@@ -1,0 +1,15 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockSnow.java
++++ ../src-work/minecraft/net/minecraft/block/BlockSnow.java
+@@ -162,6 +162,12 @@
+     {
+         if (par1World.getSavedLightValue(EnumSkyBlock.Block, par2, par3, par4) > 11)
+         {
++            // CraftBukkit start
++            if (org.bukkit.craftbukkit.event.CraftEventFactory.callBlockFadeEvent(par1World.getWorld().getBlockAt(par2, par3, par4), 0).isCancelled())
++            {
++                return;
++            }
++            // CraftBukkit end
+             par1World.setBlockToAir(par2, par3, par4);
+         }
+     }

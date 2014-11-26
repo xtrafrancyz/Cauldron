@@ -1,0 +1,43 @@
+--- ../src-base/minecraft/net/minecraft/entity/passive/EntityCow.java
++++ ../src-work/minecraft/net/minecraft/entity/passive/EntityCow.java
+@@ -15,6 +15,11 @@
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.world.World;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.inventory.CraftItemStack;
++// CraftBukkit end
++
+ public class EntityCow extends EntityAnimal
+ {
+     public EntityCow(World par1World)
+@@ -133,15 +138,25 @@
+ 
+         if (itemstack != null && itemstack.itemID == Item.bucketEmpty.itemID && !par1EntityPlayer.capabilities.isCreativeMode)
+         {
+-            if (itemstack.stackSize-- == 1)
++            // CraftBukkit start - Got milk?
++            org.bukkit.Location loc = this.getBukkitEntity().getLocation();
++            org.bukkit.event.player.PlayerBucketFillEvent event = CraftEventFactory.callPlayerBucketFillEvent(par1EntityPlayer, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), -1, itemstack, Item.bucketMilk);
++
++            if (event.isCancelled())
+             {
+-                par1EntityPlayer.inventory.setInventorySlotContents(par1EntityPlayer.inventory.currentItem, new ItemStack(Item.bucketMilk));
++                return false;
+             }
++
++            if (--itemstack.stackSize <= 0)
++            {
++                par1EntityPlayer.inventory.setInventorySlotContents(par1EntityPlayer.inventory.currentItem, CraftItemStack.asNMSCopy(event.getItemStack()));
++            }
+             else if (!par1EntityPlayer.inventory.addItemStackToInventory(new ItemStack(Item.bucketMilk)))
+             {
+-                par1EntityPlayer.dropPlayerItem(new ItemStack(Item.bucketMilk.itemID, 1, 0));
++                par1EntityPlayer.dropPlayerItem(CraftItemStack.asNMSCopy(event.getItemStack()));
+             }
+ 
++            // CraftBukkit end
+             return true;
+         }
+         else

@@ -1,0 +1,28 @@
+--- ../src-base/minecraft/net/minecraft/enchantment/Enchantment.java
++++ ../src-work/minecraft/net/minecraft/enchantment/Enchantment.java
+@@ -116,6 +116,8 @@
+         {
+             enchantmentsList[par1] = this;
+         }
++
++        org.bukkit.enchantments.Enchantment.registerEnchantment(new org.bukkit.craftbukkit.enchantments.CraftEnchantment(this)); // CraftBukkit
+     }
+ 
+     public int getWeight()
+@@ -211,14 +213,14 @@
+     }
+ 
+     /**
+-     * This applies specifically to applying at the enchanting table. The other method {@link #canApply(ItemStack)}
++     * This applies specifically to applying at the enchanting table. The other method {@link #func_92037_a(ItemStack)}
+      * applies for <i>all possible</i> enchantments.
+      * @param stack
+      * @return
+      */
+     public boolean canApplyAtEnchantingTable(ItemStack stack)
+     {
+-        return canApply(stack);
++        return this.type.canEnchantItem(stack.getItem());
+     }
+ 
+     /**

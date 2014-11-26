@@ -1,0 +1,53 @@
+--- ../src-base/minecraft/net/minecraft/network/MemoryConnection.java
++++ ../src-work/minecraft/net/minecraft/network/MemoryConnection.java
+@@ -4,6 +4,7 @@
+ import cpw.mods.fml.relauncher.Side;
+ import cpw.mods.fml.relauncher.SideOnly;
+ import java.net.InetSocketAddress;
++import java.net.Socket;
+ import java.net.SocketAddress;
+ import java.util.ArrayList;
+ import java.util.Collections;
+@@ -16,6 +17,7 @@
+ import net.minecraft.logging.ILogAgent;
+ import net.minecraft.network.packet.NetHandler;
+ import net.minecraft.network.packet.Packet;
++import mcp.mobius.mobiuscore.profiler.ProfilerSection; // Cauldron - mobius import
+ 
+ public class MemoryConnection implements INetworkManager
+ {
+@@ -54,6 +56,7 @@
+     {
+         if (!this.shuttingDown)
+         {
++        	ProfilerSection.PACKET_OUTBOUND.start(par1Packet); // Cauldron - mobius hook
+             this.pairedConnection.processOrCachePacket(par1Packet);
+         }
+     }
+@@ -86,6 +89,7 @@
+         while (i-- >= 0 && !this.readPacketCache.isEmpty())
+         {
+             Packet packet = readPacketCache.poll();
++            ProfilerSection.PACKET_INBOUND.start(packet); // Cauldron - mobius hook
+             packet.processPacket(this.myNetHandler);
+         }
+ 
+@@ -175,4 +179,18 @@
+             this.readPacketCache.add(par1Packet);
+         }
+     }
++    
++    @Override
++    public void setSocketAddress(SocketAddress address)
++    {
++        // TODO Auto-generated method stub
++        
++    }
++
++    @Override
++    public Socket getSocket()
++    {
++        // TODO Auto-generated method stub
++        return null;
++    }
+ }

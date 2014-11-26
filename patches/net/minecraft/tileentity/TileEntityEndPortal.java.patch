@@ -1,0 +1,14 @@
+--- ../src-base/minecraft/net/minecraft/tileentity/TileEntityEndPortal.java
++++ ../src-work/minecraft/net/minecraft/tileentity/TileEntityEndPortal.java
+@@ -2,4 +2,11 @@
+ 
+ public class TileEntityEndPortal extends TileEntity
+ {
++    // Cauldron start
++    @Override
++    public boolean canUpdate()
++    {
++        return false;
++    }
++    // Cauldron end
+ }

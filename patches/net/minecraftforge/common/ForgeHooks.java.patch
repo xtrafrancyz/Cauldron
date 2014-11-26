@@ -1,0 +1,71 @@
+--- ../src-base/minecraft/net/minecraftforge/common/ForgeHooks.java
++++ ../src-work/minecraft/net/minecraftforge/common/ForgeHooks.java
+@@ -22,7 +22,6 @@
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.item.ItemSword;
+ import net.minecraft.network.NetServerHandler;
+-import net.minecraft.network.packet.Packet;
+ import net.minecraft.network.packet.Packet53BlockChange;
+ import net.minecraft.tileentity.TileEntity;
+ import net.minecraft.util.AxisAlignedBB;
+@@ -403,6 +402,12 @@
+     {
+         player.captureDrops = true;
+         EntityItem ret = player.dropPlayerItemWithRandomChoice(item, false);
++        // Cauldron start - dropPlayerItemWithRandomChoice() returns null if a Bukkit plugin cancels PlayerDropItemEvent
++        if (ret == null)
++        {
++            return null;
++        }
++        // Cauldron end
+         player.capturedDrops.clear();
+         player.captureDrops = false;
+ 
+@@ -451,19 +456,9 @@
+     
+     public static BlockEvent.BreakEvent onBlockBreakEvent(World world, EnumGameType gameType, EntityPlayerMP entityPlayer, int x, int y, int z)
+     {
+-        // Logic from tryHarvestBlock for pre-canceling the event
+-        boolean preCancelEvent = false;
+-        if (gameType.isAdventure() && !entityPlayer.isCurrentToolAdventureModeExempt(x, y, z))
+-        {
+-            preCancelEvent = true;
+-        }
+-        else if (gameType.isCreative() && entityPlayer.getHeldItem() != null && entityPlayer.getHeldItem().getItem() instanceof ItemSword)
+-        {
+-            preCancelEvent = true;
+-        }
+-
++        // Cauldron - pre-cancel handled in BreakEvent
+         // Tell client the block is gone immediately then process events
+-        if (world.getBlockTileEntity(x, y, z) == null)
++        if (world.getBlockTileEntity(x, y, z) == null && !(entityPlayer instanceof FakePlayer)) // Cauldron - don't send packets to fakeplayers
+         {
+             Packet53BlockChange packet = new Packet53BlockChange(x, y, z, world);
+             packet.type = 0;
+@@ -475,11 +470,10 @@
+         Block block = Block.blocksList[world.getBlockId(x, y, z)];
+         int blockMetadata = world.getBlockMetadata(x, y, z);
+         BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(x, y, z, world, block, blockMetadata, entityPlayer);
+-        event.setCanceled(preCancelEvent);
+         MinecraftForge.EVENT_BUS.post(event);
+ 
+         // Handle if the event is canceled
+-        if (event.isCanceled())
++        if (event.isCanceled() && !(entityPlayer instanceof FakePlayer)) // Cauldron - don't send packets to fakeplayers
+         {
+             // Let the client know the block still exists
+             entityPlayer.playerNetServerHandler.sendPacketToPlayer(new Packet53BlockChange(x, y, z, world));
+@@ -488,11 +482,7 @@
+             TileEntity tileentity = world.getBlockTileEntity(x, y, z);
+             if (tileentity != null)
+             {
+-                Packet pkt = tileentity.getDescriptionPacket();
+-                if (pkt != null)
+-                {
+-                    entityPlayer.playerNetServerHandler.sendPacketToPlayer(pkt);
+-                }
++                entityPlayer.playerNetServerHandler.sendPacketToPlayer(tileentity.getDescriptionPacket());
+             }
+         }
+         return event;

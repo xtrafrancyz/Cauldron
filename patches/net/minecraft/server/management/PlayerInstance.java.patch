@@ -1,0 +1,107 @@
+--- ../src-base/minecraft/net/minecraft/server/management/PlayerInstance.java
++++ ../src-work/minecraft/net/minecraft/server/management/PlayerInstance.java
+@@ -2,7 +2,11 @@
+ 
+ import java.util.ArrayList;
+ import java.util.Arrays;
++import java.util.HashMap;
+ import java.util.List;
++
++import org.bukkit.craftbukkit.chunkio.ChunkIOExecutor;
++
+ import net.minecraft.entity.player.EntityPlayerMP;
+ import net.minecraft.network.packet.Packet;
+ import net.minecraft.network.packet.Packet51MapChunk;
+@@ -31,8 +35,18 @@
+ 
+     /** time what is using when chunk InhabitedTime is being calculated */
+     private long previousWorldTime;
+-
+     final PlayerManager thePlayerManager;
++    // CraftBukkit start
++    private final HashMap<EntityPlayerMP, Runnable> players = new HashMap<EntityPlayerMP, Runnable>();
++    private boolean loaded = false;
++    private Runnable loadedRunnable = new Runnable()
++    {
++        public void run()
++        {
++            PlayerInstance.this.loaded = true;
++        }
++    };
++    // CraftBukkit end
+ 
+     public PlayerInstance(PlayerManager par1PlayerManager, int par2, int par3)
+     {
+@@ -40,10 +54,10 @@
+         this.playersInChunk = new ArrayList();
+         this.locationOfBlockChange = new short[64];
+         this.chunkLocation = new ChunkCoordIntPair(par2, par3);
+-        par1PlayerManager.getWorldServer().theChunkProviderServer.loadChunk(par2, par3);
++        par1PlayerManager.getWorldServer().theChunkProviderServer.getChunkAt(par2, par3, this.loadedRunnable); // CraftBukkit
+     }
+ 
+-    public void addPlayer(EntityPlayerMP par1EntityPlayerMP)
++    public void addPlayer(final EntityPlayerMP par1EntityPlayerMP)   // CraftBukkit - added final to argument
+     {
+         if (this.playersInChunk.contains(par1EntityPlayerMP))
+         {
+@@ -57,7 +71,28 @@
+             }
+ 
+             this.playersInChunk.add(par1EntityPlayerMP);
+-            par1EntityPlayerMP.loadedChunks.add(this.chunkLocation);
++            // CraftBukkit start
++            Runnable playerRunnable;
++
++            if (this.loaded)
++            {
++                playerRunnable = null;
++                par1EntityPlayerMP.loadedChunks.add(this.chunkLocation);
++            }
++            else
++            {
++                playerRunnable = new Runnable()
++                {
++                    public void run()
++                    {
++                        par1EntityPlayerMP.loadedChunks.add(PlayerInstance.this.chunkLocation);
++                    }
++                };
++                this.thePlayerManager.getWorldServer().theChunkProviderServer.getChunkAt(this.chunkLocation.chunkXPos, this.chunkLocation.chunkZPos, playerRunnable);
++            }
++
++            this.players.put(par1EntityPlayerMP, playerRunnable);
++            // CraftBukkit end
+         }
+     }
+ 
+@@ -65,8 +100,28 @@
+     {
+         if (this.playersInChunk.contains(par1EntityPlayerMP))
+         {
+-            Chunk chunk = PlayerManager.getWorldServer(this.thePlayerManager).getChunkFromChunkCoords(this.chunkLocation.chunkXPos, this.chunkLocation.chunkZPos);
++            // CraftBukkit start - If we haven't loaded yet don't load the chunk just so we can clean it up
++            if (!this.loaded)
++            {
++                ChunkIOExecutor.dropQueuedChunkLoad(this.thePlayerManager.getWorldServer(), this.chunkLocation.chunkXPos, this.chunkLocation.chunkZPos, this.players.get(par1EntityPlayerMP));
++                this.playersInChunk.remove(par1EntityPlayerMP);
++                this.players.remove(par1EntityPlayerMP);
++
++                if (this.playersInChunk.isEmpty())
++                {
++                    ChunkIOExecutor.dropQueuedChunkLoad(this.thePlayerManager.getWorldServer(), this.chunkLocation.chunkXPos, this.chunkLocation.chunkZPos, this.loadedRunnable);
++                    long i = (long) this.chunkLocation.chunkXPos + 2147483647L | (long) this.chunkLocation.chunkZPos + 2147483647L << 32;
++                    PlayerManager.getChunkWatchers(this.thePlayerManager).remove(i);
++                    PlayerManager.getChunkWatcherList(this.thePlayerManager).remove(this);
++                }
++
++                return;
++            }
++
++            // CraftBukkit end
++            Chunk chunk = this.thePlayerManager.getWorldServer().getChunkFromChunkCoords(this.chunkLocation.chunkXPos, this.chunkLocation.chunkZPos);
+             par1EntityPlayerMP.playerNetServerHandler.sendPacketToPlayer(new Packet51MapChunk(chunk, true, 0));
++            this.players.remove(par1EntityPlayerMP); // CraftBukkit
+             this.playersInChunk.remove(par1EntityPlayerMP);
+             par1EntityPlayerMP.loadedChunks.remove(this.chunkLocation);
+ 

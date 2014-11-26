@@ -1,0 +1,53 @@
+--- ../src-base/minecraft/net/minecraft/server/integrated/IntegratedServer.java
++++ ../src-work/minecraft/net/minecraft/server/integrated/IntegratedServer.java
+@@ -26,6 +26,10 @@
+ import net.minecraftforge.common.DimensionManager;
+ import net.minecraftforge.common.MinecraftForge;
+ import net.minecraftforge.event.world.WorldEvent;
++// Cauldron start
++import net.minecraft.server.dedicated.PropertyManager;
++import net.minecraft.world.MinecraftException;
++// Cauldron end
+ 
+ @SideOnly(Side.CLIENT)
+ public class IntegratedServer extends MinecraftServer
+@@ -93,7 +97,7 @@
+     /**
+      * Initialises the server and starts it.
+      */
+-    protected boolean startServer() throws IOException
++    protected boolean startServer()
+     {
+         this.serverLogAgent.logInfo("Starting integrated minecraft server version 1.6.4");
+         this.setOnlineMode(false);
+@@ -112,7 +116,7 @@
+     /**
+      * Main function called by run() every loop.
+      */
+-    public void tick()
++    public void tick() throws MinecraftException // Cauldron
+     {
+         boolean flag = this.isGamePaused;
+         this.isGamePaused = this.theServerListeningThread.isGamePaused();
+@@ -237,7 +241,7 @@
+     /**
+      * Saves all necessary data as preparation for stopping the server.
+      */
+-    public void stopServer()
++    public void stopServer() throws MinecraftException // Cauldron
+     {
+         super.stopServer();
+ 
+@@ -295,4 +299,12 @@
+     {
+         return this.getServerListeningThread();
+     }
++
++    // Cauldron start
++    @Override
++    public PropertyManager getPropertyManager()
++    {
++        return null;
++    }
++    // Cauldron end
+ }

@@ -1,0 +1,15 @@
+--- ../src-base/minecraft/net/minecraft/tileentity/TileEntityDropper.java
++++ ../src-work/minecraft/net/minecraft/tileentity/TileEntityDropper.java
+@@ -9,4 +9,12 @@
+     {
+         return this.isInvNameLocalized() ? this.customName : "container.dropper";
+     }
++
++    // Cauldron start
++    @Override
++    public boolean canUpdate()
++    {
++        return false;
++    }
++    // Cauldron end
+ }

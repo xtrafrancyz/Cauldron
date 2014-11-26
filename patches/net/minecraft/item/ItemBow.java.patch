@@ -1,0 +1,52 @@
+--- ../src-base/minecraft/net/minecraft/item/ItemBow.java
++++ ../src-work/minecraft/net/minecraft/item/ItemBow.java
+@@ -36,6 +36,7 @@
+     {
+         int j = this.getMaxItemUseDuration(par1ItemStack) - par4;
+ 
++        { // Cauldron - scope
+         ArrowLooseEvent event = new ArrowLooseEvent(par3EntityPlayer, par1ItemStack, j);
+         MinecraftForge.EVENT_BUS.post(event);
+         if (event.isCanceled())
+@@ -43,6 +44,7 @@
+             return;
+         }
+         j = event.charge;
++        } // Cauldron
+ 
+         boolean flag = par3EntityPlayer.capabilities.isCreativeMode || EnchantmentHelper.getEnchantmentLevel(Enchantment.infinity.effectId, par1ItemStack) > 0;
+ 
+@@ -87,6 +89,21 @@
+                 entityarrow.setFire(100);
+             }
+ 
++            // CraftBukkit start
++            org.bukkit.event.entity.EntityShootBowEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callEntityShootBowEvent(par3EntityPlayer, par1ItemStack, entityarrow, f);
++
++            if (event.isCancelled())
++            {
++                event.getProjectile().remove();
++                return;
++            }
++
++            if (event.getProjectile() == entityarrow.getBukkitEntity())
++            {
++                par2World.spawnEntityInWorld(entityarrow);
++            }
++
++            // CraftBukkit end
+             par1ItemStack.damageItem(1, par3EntityPlayer);
+             par2World.playSoundAtEntity(par3EntityPlayer, "random.bow", 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
+ 
+@@ -99,10 +116,7 @@
+                 par3EntityPlayer.inventory.consumeInventoryItem(Item.arrow.itemID);
+             }
+ 
+-            if (!par2World.isRemote)
+-            {
+-                par2World.spawnEntityInWorld(entityarrow);
+-            }
++            // CraftBukkit - moved addEntity up
+         }
+     }
+ 

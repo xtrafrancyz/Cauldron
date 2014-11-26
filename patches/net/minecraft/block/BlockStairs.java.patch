@@ -1,0 +1,20 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockStairs.java
++++ ../src-work/minecraft/net/minecraft/block/BlockStairs.java
+@@ -481,7 +481,7 @@
+     }
+ 
+     /**
+-     * Returns whether this block is collideable based on the arguments passed in n@param par1 block metaData n@param
++     * Returns whether this block is collideable based on the arguments passed in \n@param par1 block metaData \n@param
+      * par2 whether the player right-clicked while holding a boat
+      */
+     public boolean canCollideCheck(int par1, boolean par2)
+@@ -595,7 +595,7 @@
+         int l = par1World.getBlockMetadata(par2, par3, par4);
+         int i1 = l & 3;
+         boolean flag = (l & 4) == 4;
+-        int[] aint = field_72159_a[i1 + (flag?4:0)];
++        int[] aint = field_72159_a[i1 + (flag ? 4 : 0)];
+         this.field_72156_cr = true;
+         int j1;
+         int k1;

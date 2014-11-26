@@ -1,0 +1,33 @@
+--- ../src-base/minecraft/net/minecraftforge/oredict/OreDictionary.java
++++ ../src-work/minecraft/net/minecraftforge/oredict/OreDictionary.java
+@@ -124,7 +124,11 @@
+             new ItemStack(Block.stoneBrick),
+             new ItemStack(Block.stoneSingleSlab),
+             new ItemStack(Block.stairsCobblestone),
+-            new ItemStack(Block.cobblestoneWall)
++            new ItemStack(Block.cobblestoneWall),
++            new ItemStack(Block.stairsWoodOak),
++            new ItemStack(Block.stairsWoodBirch),
++            new ItemStack(Block.stairsWoodJungle),
++            new ItemStack(Block.stairsWoodSpruce)
+         };
+ 
+         List recipes = CraftingManager.getInstance().getRecipeList();
+@@ -138,7 +142,7 @@
+             {
+                 ShapedRecipes recipe = (ShapedRecipes)obj;
+                 ItemStack output = recipe.getRecipeOutput();
+-                if (output != null && containsMatch(false, exclusions, output))
++                if ((output != null && containsMatch(false, exclusions, output)) || output == null) // Cauldron - fixes NPE's with null recipes being added to forge
+                 {
+                     continue;
+                 }
+@@ -153,7 +157,7 @@
+             {
+                 ShapelessRecipes recipe = (ShapelessRecipes)obj;
+                 ItemStack output = recipe.getRecipeOutput();
+-                if (output != null && containsMatch(false, exclusions, output))
++                if ((output != null && containsMatch(false, exclusions, output)) || output == null) // Cauldron - fixes NPE's with null recipes being added to forge
+                 {
+                     continue;
+                 }

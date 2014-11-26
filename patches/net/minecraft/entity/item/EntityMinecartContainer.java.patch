@@ -1,0 +1,78 @@
+--- ../src-base/minecraft/net/minecraft/entity/item/EntityMinecartContainer.java
++++ ../src-work/minecraft/net/minecraft/entity/item/EntityMinecartContainer.java
+@@ -10,6 +10,12 @@
+ import net.minecraft.world.World;
+ import net.minecraftforge.common.MinecraftForge;
+ import net.minecraftforge.event.entity.minecart.MinecartInteractEvent;
++// CraftBukkit start
++import java.util.List;
++import org.bukkit.craftbukkit.entity.CraftHumanEntity;
++import org.bukkit.entity.HumanEntity;
++import org.bukkit.inventory.InventoryHolder;
++// CraftBukkit end
+ 
+ public abstract class EntityMinecartContainer extends EntityMinecart implements IInventory
+ {
+@@ -21,6 +27,48 @@
+      */
+     private boolean dropContentsWhenDead = true;
+ 
++    // CraftBukkit start
++    public List<HumanEntity> transaction = new java.util.ArrayList<HumanEntity>();
++    private int maxStack = MAX_STACK;
++
++    public ItemStack[] getContents()
++    {
++        return this.minecartContainerItems;
++    }
++
++    public void onOpen(CraftHumanEntity who)
++    {
++        transaction.add(who);
++    }
++
++    public void onClose(CraftHumanEntity who)
++    {
++        transaction.remove(who);
++    }
++
++    public List<HumanEntity> getViewers()
++    {
++        return transaction;
++    }
++
++    public InventoryHolder getOwner()
++    {
++        org.bukkit.entity.Entity cart = getBukkitEntity();
++
++        if (cart instanceof InventoryHolder)
++        {
++            return (InventoryHolder) cart;
++        }
++
++        return null;
++    }
++
++    public void setMaxStackSize(int size)
++    {
++        maxStack = size;
++    }
++    // CraftBukkit end
++
+     public EntityMinecartContainer(World par1World)
+     {
+         super(par1World);
+@@ -186,6 +234,13 @@
+      */
+     public void travelToDimension(int par1)
+     {
++        // Spigot Start
++        for (HumanEntity human : new java.util.ArrayList<HumanEntity>(transaction))
++        {
++            human.closeInventory();
++        }
++
++        // Spigot End
+         this.dropContentsWhenDead = false;
+         super.travelToDimension(par1);
+     }

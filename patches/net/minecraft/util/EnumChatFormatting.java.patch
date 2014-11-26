@@ -1,0 +1,26 @@
+--- ../src-base/minecraft/net/minecraft/util/EnumChatFormatting.java
++++ ../src-work/minecraft/net/minecraft/util/EnumChatFormatting.java
+@@ -109,16 +109,15 @@
+         return arraylist;
+     }
+ 
+-    static
+-    {
+-        EnumChatFormatting[] aenumchatformatting = values();
+-        int i = aenumchatformatting.length;
++    static {
++        EnumChatFormatting[] var0 = values();
++        int var1 = var0.length;
+ 
+-        for (int j = 0; j < i; ++j)
++        for (int var2 = 0; var2 < var1; ++var2)
+         {
+-            EnumChatFormatting enumchatformatting = aenumchatformatting[j];
+-            field_96321_w.put(Character.valueOf(enumchatformatting.func_96298_a()), enumchatformatting);
+-            field_96331_x.put(enumchatformatting.func_96297_d(), enumchatformatting);
++            EnumChatFormatting var3 = var0[var2];
++            field_96321_w.put(Character.valueOf(var3.func_96298_a()), var3);
++            field_96331_x.put(var3.func_96297_d(), var3);
+         }
+     }
+ }

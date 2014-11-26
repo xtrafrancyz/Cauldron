@@ -1,0 +1,20 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockNetherStalk.java
++++ ../src-work/minecraft/net/minecraft/block/BlockNetherStalk.java
+@@ -17,6 +17,7 @@
+ {
+     @SideOnly(Side.CLIENT)
+     private Icon[] iconArray;
++    private static final String[] field_94373_a = new String[] {"netherStalk_0", "netherStalk_1", "netherStalk_2"};
+ 
+     protected BlockNetherStalk(int par1)
+     {
+@@ -54,8 +55,7 @@
+ 
+         if (l < 3 && par5Random.nextInt(10) == 0)
+         {
+-            ++l;
+-            par1World.setBlockMetadataWithNotify(par2, par3, par4, l, 2);
++            org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockGrowEvent(par1World, par2, par3, par4, this.blockID, ++l); // CraftBukkit
+         }
+ 
+         super.updateTick(par1World, par2, par3, par4, par5Random);

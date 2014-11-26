@@ -1,0 +1,85 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockMushroom.java
++++ ../src-work/minecraft/net/minecraft/block/BlockMushroom.java
+@@ -5,6 +5,11 @@
+ import net.minecraft.world.gen.feature.WorldGenBigMushroom;
+ 
+ import net.minecraftforge.common.ForgeDirection;
++import org.bukkit.TreeType;
++// CraftBukkit start
++import org.bukkit.block.BlockState;
++import org.bukkit.event.block.BlockSpreadEvent;
++// CraftBukkit end
+ 
+ public class BlockMushroom extends BlockFlower
+ {
+@@ -21,7 +26,9 @@
+      */
+     public void updateTick(World par1World, int par2, int par3, int par4, Random par5Random)
+     {
+-        if (par5Random.nextInt(25) == 0)
++        final int sourceX = par2, sourceY = par3, sourceZ = par4; // CraftBukkit
++
++        if (par5Random.nextInt(Math.max(1, (int) par1World.growthOdds / par1World.spigotConfig.mushroomModifier * 25)) == 0) // Spigot
+         {
+             byte b0 = 4;
+             int l = 5;
+@@ -68,7 +75,18 @@
+ 
+             if (par1World.isAirBlock(i1, j1, k1) && this.canBlockStay(par1World, i1, j1, k1))
+             {
+-                par1World.setBlock(i1, j1, k1, this.blockID, 0, 2);
++                // CraftBukkit start
++                org.bukkit.World bworld = par1World.getWorld();
++                BlockState blockState = bworld.getBlockAt(i1, j1, k1).getState();
++                blockState.setTypeId(this.blockID);
++                BlockSpreadEvent event = new BlockSpreadEvent(blockState.getBlock(), bworld.getBlockAt(sourceX, sourceY, sourceZ), blockState);
++                par1World.getServer().getPluginManager().callEvent(event);
++
++                if (!event.isCancelled())
++                {
++                    blockState.update(true);
++                }
++                // CraftBukkit end
+             }
+         }
+     }
+@@ -106,7 +124,7 @@
+         {
+             return false;
+         }
+-    }
++    } 
+ 
+     /**
+      * Fertilize the mushroom.
+@@ -117,23 +135,22 @@
+         par1World.setBlockToAir(par2, par3, par4);
+         WorldGenBigMushroom worldgenbigmushroom = null;
+ 
+-        if (this.blockID == Block.mushroomBrown.blockID)
+-        {
++        if (this.blockID == Block.mushroomBrown.blockID) {
++            BlockSapling.treeType = TreeType.BROWN_MUSHROOM; // CraftBukkit
+             worldgenbigmushroom = new WorldGenBigMushroom(0);
+-        }
+-        else if (this.blockID == Block.mushroomRed.blockID)
+-        {
++        } else if (this.blockID == Block.mushroomRed.blockID) {
++            BlockSapling.treeType = TreeType.RED_MUSHROOM; // CraftBukkit
+             worldgenbigmushroom = new WorldGenBigMushroom(1);
+         }
+ 
+-        if (worldgenbigmushroom != null && worldgenbigmushroom.generate(par1World, par5Random, par2, par3, par4))
++        if (worldgenbigmushroom != null && worldgenbigmushroom.generate(par1World, par5Random, par2, par3, par4)) 
+         {
+             return true;
+-        }
++        } 
+         else
+         {
+             par1World.setBlock(par2, par3, par4, this.blockID, l, 3);
+             return false;
+-        }
++        }     
+     }
+ }

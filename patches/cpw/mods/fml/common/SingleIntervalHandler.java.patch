@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/cpw/mods/fml/common/SingleIntervalHandler.java
++++ ../src-work/minecraft/cpw/mods/fml/common/SingleIntervalHandler.java
+@@ -16,7 +16,7 @@
+ 
+ public class SingleIntervalHandler implements IScheduledTickHandler
+ {
+-    private ITickHandler wrapped;
++    public ITickHandler wrapped; // Cauldron - mobius access
+     public SingleIntervalHandler(ITickHandler handler)
+     {
+         this.wrapped=handler;

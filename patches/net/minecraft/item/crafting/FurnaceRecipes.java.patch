@@ -1,0 +1,20 @@
+--- ../src-base/minecraft/net/minecraft/item/crafting/FurnaceRecipes.java
++++ ../src-work/minecraft/net/minecraft/item/crafting/FurnaceRecipes.java
+@@ -13,7 +13,7 @@
+     private static final FurnaceRecipes smeltingBase = new FurnaceRecipes();
+ 
+     /** The list of smelting results. */
+-    private Map smeltingList = new HashMap();
++    public Map smeltingList = new HashMap(); // CraftBukkit - private -> public
+     private Map experienceList = new HashMap();
+     private HashMap<List<Integer>, ItemStack> metaSmeltingList = new HashMap<List<Integer>, ItemStack>();
+     private HashMap<List<Integer>, Float> metaExperience = new HashMap<List<Integer>, Float>();
+@@ -26,7 +26,7 @@
+         return smeltingBase;
+     }
+ 
+-    private FurnaceRecipes()
++    public FurnaceRecipes()   // CraftBukkit - private -> public
+     {
+         this.addSmelting(Block.oreIron.blockID, new ItemStack(Item.ingotIron), 0.7F);
+         this.addSmelting(Block.oreGold.blockID, new ItemStack(Item.ingotGold), 1.0F);

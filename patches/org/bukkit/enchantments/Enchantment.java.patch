@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/org/bukkit/enchantments/Enchantment.java
++++ ../src-work/minecraft/org/bukkit/enchantments/Enchantment.java
+@@ -219,7 +219,7 @@
+      */
+     public static void registerEnchantment(Enchantment enchantment) {
+         if (byId.containsKey(enchantment.id) || byName.containsKey(enchantment.getName())) {
+-            throw new IllegalArgumentException("Cannot set already-set enchantment");
++            //throw new IllegalArgumentException("Cannot set already-set enchantment"); // Cauldron - yes we can
+         } else if (!isAcceptingRegistrations()) {
+             throw new IllegalStateException("No longer accepting new enchantments (can only be done by the server implementation)");
+         }

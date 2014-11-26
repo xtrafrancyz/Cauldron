@@ -1,0 +1,23 @@
+--- ../src-base/minecraft/net/minecraft/server/dedicated/DedicatedServerListenThread.java
++++ ../src-work/minecraft/net/minecraft/server/dedicated/DedicatedServerListenThread.java
+@@ -5,6 +5,7 @@
+ import net.minecraft.network.NetworkListenThread;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.ServerListenThread;
++import mcp.mobius.mobiuscore.profiler.ProfilerSection; // Cauldron - mobius import
+ 
+ public class DedicatedServerListenThread extends NetworkListenThread
+ {
+@@ -30,8 +31,12 @@
+      */
+     public void networkTick()
+     {
++        // Cauldron start - mobius hooks
++    	ProfilerSection.NETWORK_TICK.start();
+         this.theServerListenThread.processPendingConnections();
+         super.networkTick();
++    	ProfilerSection.NETWORK_TICK.stop();
++        // Cauldron end
+     }
+ 
+     public DedicatedServer getDedicatedServer()

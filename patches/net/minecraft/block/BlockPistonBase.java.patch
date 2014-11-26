@@ -1,0 +1,119 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockPistonBase.java
++++ ../src-work/minecraft/net/minecraft/block/BlockPistonBase.java
+@@ -18,6 +18,11 @@
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
++// CraftBukkit start
++import org.bukkit.craftbukkit.block.CraftBlock;
++import org.bukkit.event.block.BlockPistonRetractEvent;
++import org.bukkit.event.block.BlockPistonExtendEvent;
++// CraftBukkit end
+ 
+ public class BlockPistonBase extends Block
+ {
+@@ -170,13 +175,35 @@
+ 
+             if (flag && !isExtended(l))
+             {
+-                if (canExtend(par1World, par2, par3, par4, i1))
++                // CraftBukkit start
++                int length = canExtend_IntCB(par1World, par2, par3, par4, i1); // Cauldron - update from rename
++
++                if (length >= 0)
+                 {
++                    org.bukkit.block.Block block = par1World.getWorld().getBlockAt(par2, par3, par4);
++                    BlockPistonExtendEvent event = new BlockPistonExtendEvent(block, length, CraftBlock.notchToBlockFace(i1));
++                    par1World.getServer().getPluginManager().callEvent(event);
++
++                    if (event.isCancelled())
++                    {
++                        return;
++                    }
++                    // CraftBukkit end
+                     par1World.addBlockEvent(par2, par3, par4, this.blockID, 0, i1);
+                 }
+             }
+             else if (!flag && isExtended(l))
+             {
++                // CraftBukkit start
++                org.bukkit.block.Block block = par1World.getWorld().getBlockAt(par2, par3, par4);
++                BlockPistonRetractEvent event = new BlockPistonRetractEvent(block, CraftBlock.notchToBlockFace(i1));
++                par1World.getServer().getPluginManager().callEvent(event);
++
++                if (event.isCancelled())
++                {
++                    return;
++                }
++                // CraftBukkit end
+                 par1World.setBlockMetadataWithNotify(par2, par3, par4, i1, 2);
+                 par1World.addBlockEvent(par2, par3, par4, this.blockID, 1, i1);
+             }
+@@ -366,6 +393,12 @@
+      */
+     public static int getOrientation(int par0)
+     {
++        // CraftBukkit start
++        if ((par0 & 7) >= Facing.oppositeSide.length)
++        {
++            return 7;  // check for AIOOB on piston data
++        }
++        // CraftBukkit end
+         return par0 & 7;
+     }
+ 
+@@ -442,11 +475,18 @@
+             return !par1World.blockHasTileEntity(par2, par3, par4);
+         }
+     }
++    
++    // Cauldron start - vanilla compatibility
++    private static boolean canExtend(World world, int i, int j, int k, int l) {
++        return canExtend_IntCB(world, i, j, k, l) >= 0;
++    }
++    // Cauldron end    
+ 
++    // CraftBukkit - boolean -> int return
+     /**
+      * checks to see if this piston could push the blocks in front of it.
+      */
+-    private static boolean canExtend(World par0World, int par1, int par2, int par3, int par4)
++    private static int canExtend_IntCB(World par0World, int par1, int par2, int par3, int par4) // Cauldron - rename and wrap
+     {
+         int i1 = par1 + Facing.offsetsXForSide[par4];
+         int j1 = par2 + Facing.offsetsYForSide[par4];
+@@ -459,7 +499,7 @@
+             {
+                 if (j1 <= 0 || j1 >= par0World.getHeight() - 1)
+                 {
+-                    return false;
++                    return -1; // CraftBukkit
+                 }
+ 
+                 int i2 = par0World.getBlockId(i1, j1, k1);
+@@ -468,14 +508,14 @@
+                 {
+                     if (!canPushBlock(i2, par0World, i1, j1, k1, true))
+                     {
+-                        return false;
++                        return -1; // CraftBukkit
+                     }
+ 
+                     if (Block.blocksList[i2].getMobilityFlag() != 1)
+                     {
+                         if (l1 == 12)
+                         {
+-                            return false;
++                            return -1; // CraftBukkit
+                         }
+ 
+                         i1 += Facing.offsetsXForSide[par4];
+@@ -487,7 +527,7 @@
+                 }
+             }
+ 
+-            return true;
++            return l1; // CraftBukkit
+         }
+     }
+ 

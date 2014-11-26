@@ -1,0 +1,30 @@
+--- ../src-base/minecraft/net/minecraft/network/packet/Packet20NamedEntitySpawn.java
++++ ../src-work/minecraft/net/minecraft/network/packet/Packet20NamedEntitySpawn.java
+@@ -11,6 +11,8 @@
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.util.MathHelper;
+ 
++import java.io.IOException; // CraftBukkit
++
+ public class Packet20NamedEntitySpawn extends Packet
+ {
+     /** The entity ID, in this case it's the player ID. */
+@@ -44,6 +46,18 @@
+     public Packet20NamedEntitySpawn(EntityPlayer par1EntityPlayer)
+     {
+         this.entityId = par1EntityPlayer.entityId;
++
++        // CraftBukkit start - Limit name length to 16 characters
++        if (par1EntityPlayer.username.length() > 16)
++        {
++            this.name = par1EntityPlayer.username.substring(0, 16);
++        }
++        else
++        {
++            this.name = par1EntityPlayer.username;
++        }
++
++        // CraftBukkit end
+         this.name = par1EntityPlayer.getCommandSenderName();
+         this.xPosition = MathHelper.floor_double(par1EntityPlayer.posX * 32.0D);
+         this.yPosition = MathHelper.floor_double(par1EntityPlayer.posY * 32.0D);

@@ -1,0 +1,1 @@
+java -jar cauldroninstaller.jar --installServer

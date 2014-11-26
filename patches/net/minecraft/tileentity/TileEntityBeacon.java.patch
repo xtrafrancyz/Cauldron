@@ -1,0 +1,62 @@
+--- ../src-base/minecraft/net/minecraft/tileentity/TileEntityBeacon.java
++++ ../src-work/minecraft/net/minecraft/tileentity/TileEntityBeacon.java
+@@ -16,6 +16,11 @@
+ import net.minecraft.potion.PotionEffect;
+ import net.minecraft.util.AxisAlignedBB;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.entity.CraftHumanEntity;
++import org.bukkit.entity.HumanEntity;
++// CraftBukkit end
++
+ public class TileEntityBeacon extends TileEntity implements IInventory
+ {
+     /** List of effects that Beacon can apply */
+@@ -38,7 +43,38 @@
+     /** Item given to this beacon as payment. */
+     private ItemStack payment;
+     private String field_94048_i;
++    // CraftBukkit start
++    public List<HumanEntity> transaction = new java.util.ArrayList<HumanEntity>();
++    private int maxStack = MAX_STACK;
+ 
++    public ItemStack[] getContents()
++    {
++        return new ItemStack[] { this.payment };
++    }
++
++    public void onOpen(CraftHumanEntity who)
++    {
++        transaction.add(who);
++    }
++
++    public void onClose(CraftHumanEntity who)
++    {
++        transaction.remove(who);
++    }
++
++    public List<HumanEntity> getViewers()
++    {
++        return transaction;
++    }
++
++    public void setMaxStackSize(int size)
++    {
++        maxStack = size;
++    }
++    // CraftBukkit end
++
++    public TileEntityBeacon() {}
++
+     /**
+      * Allows the entity to update its state. Overridden in most subclasses, e.g. the mob spawner uses this to count
+      * ticks and creates a new spawn inside its implementation.
+@@ -395,7 +431,7 @@
+      */
+     public int getInventoryStackLimit()
+     {
+-        return 1;
++        return maxStack; // CraftBukkit
+     }
+ 
+     /**

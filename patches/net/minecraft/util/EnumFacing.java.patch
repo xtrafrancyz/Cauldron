@@ -1,0 +1,24 @@
+--- ../src-base/minecraft/net/minecraft/util/EnumFacing.java
++++ ../src-work/minecraft/net/minecraft/util/EnumFacing.java
+@@ -59,15 +59,14 @@
+         return faceList[par0 % faceList.length];
+     }
+ 
+-    static
+-    {
+-        EnumFacing[] aenumfacing = values();
+-        int i = aenumfacing.length;
++    static {
++        EnumFacing[] var0 = values();
++        int var1 = var0.length;
+ 
+-        for (int j = 0; j < i; ++j)
++        for (int var2 = 0; var2 < var1; ++var2)
+         {
+-            EnumFacing enumfacing = aenumfacing[j];
+-            faceList[enumfacing.order_a] = enumfacing;
++            EnumFacing var3 = var0[var2];
++            faceList[var3.order_a] = var3;
+         }
+     }
+ }

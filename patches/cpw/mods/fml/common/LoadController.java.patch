@@ -1,0 +1,26 @@
+--- ../src-base/minecraft/cpw/mods/fml/common/LoadController.java
++++ ../src-work/minecraft/cpw/mods/fml/common/LoadController.java
+@@ -15,6 +15,7 @@
+ import java.lang.reflect.InvocationTargetException;
+ import java.util.Collection;
+ import java.util.List;
++import java.util.Map;
+ import java.util.Map.Entry;
+ import java.util.logging.Level;
+ import java.util.logging.Logger;
+@@ -49,6 +50,7 @@
+     private LoaderState state;
+     private Multimap<String, ModState> modStates = ArrayListMultimap.create();
+     private Multimap<String, Throwable> errors = ArrayListMultimap.create();
++    private Map<String, ModContainer> modList;
+     private List<ModContainer> activeModList = Lists.newArrayList();
+     private ModContainer activeContainer;
+     private BiMap<ModContainer, Object> modObjectList;
+@@ -67,6 +69,7 @@
+     @Subscribe
+     public void buildModList(FMLLoadEvent event)
+     {
++        this.modList = loader.getIndexedModList();
+         Builder<String, EventBus> eventBus = ImmutableMap.builder();
+ 
+         for (ModContainer mod : loader.getModList())

@@ -1,0 +1,14 @@
+--- ../src-base/minecraft/cpw/mods/fml/relauncher/CoreModManager.java
++++ ../src-work/minecraft/cpw/mods/fml/relauncher/CoreModManager.java
+@@ -334,6 +334,11 @@
+         }
+     }
+ 
++    private static void injectTweakWrapper(FMLPluginWrapper wrapper)
++    {
++        loadPlugins.add(wrapper);
++    }
++
+     /**
+      * @param mcDir
+      *            the minecraft home directory

@@ -1,0 +1,26 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockLeaves.java
++++ ../src-work/minecraft/net/minecraft/block/BlockLeaves.java
+@@ -19,6 +19,7 @@
+ import net.minecraft.world.World;
+ 
+ import net.minecraftforge.common.IShearable;
++import org.bukkit.event.block.LeavesDecayEvent; // CraftBukkit
+ 
+ public class BlockLeaves extends BlockLeavesBase implements IShearable
+ {
+@@ -259,6 +260,15 @@
+ 
+     private void removeLeaves(World par1World, int par2, int par3, int par4)
+     {
++        // CraftBukkit start
++        LeavesDecayEvent event = new LeavesDecayEvent(par1World.getWorld().getBlockAt(par2, par3, par4));
++        par1World.getServer().getPluginManager().callEvent(event);
++
++        if (event.isCancelled())
++        {
++            return;
++        }
++        // CraftBukkit end
+         this.dropBlockAsItem(par1World, par2, par3, par4, par1World.getBlockMetadata(par2, par3, par4), 0);
+         par1World.setBlockToAir(par2, par3, par4);
+     }

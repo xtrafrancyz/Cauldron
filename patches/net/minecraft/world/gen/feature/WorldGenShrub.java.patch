@@ -1,0 +1,18 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/feature/WorldGenShrub.java
++++ ../src-work/minecraft/net/minecraft/world/gen/feature/WorldGenShrub.java
+@@ -60,8 +60,15 @@
+                     }
+                 }
+             }
++
++            // CraftBukkit start - Return false if gen was unsuccessful
+         }
++        else
++        {
++            return false;
++        }
+ 
++        // CraftBukkit end
+         return true;
+     }
+ }

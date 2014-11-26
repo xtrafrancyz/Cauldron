@@ -1,0 +1,20 @@
+--- ../src-base/minecraft/net/minecraft/entity/player/PlayerCapabilities.java
++++ ../src-work/minecraft/net/minecraft/entity/player/PlayerCapabilities.java
+@@ -66,7 +66,7 @@
+         return this.flySpeed;
+     }
+ 
+-    @SideOnly(Side.CLIENT)
++    //@SideOnly(Side.CLIENT) // Cauldron - used by CraftPlayer
+     public void setFlySpeed(float par1)
+     {
+         this.flySpeed = par1;
+@@ -77,7 +77,7 @@
+         return this.walkSpeed;
+     }
+ 
+-    @SideOnly(Side.CLIENT)
++    // @SideOnly(Side.CLIENT) // Cauldron - used by CraftPlayer
+     public void setPlayerWalkSpeed(float par1)
+     {
+         this.walkSpeed = par1;

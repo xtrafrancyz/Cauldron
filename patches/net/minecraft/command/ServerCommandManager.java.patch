@@ -1,0 +1,65 @@
+--- ../src-base/minecraft/net/minecraft/command/ServerCommandManager.java
++++ ../src-work/minecraft/net/minecraft/command/ServerCommandManager.java
+@@ -11,8 +11,16 @@
+ 
+ public class ServerCommandManager extends CommandHandler implements IAdminCommand
+ {
++    // Cauldron start - moved commands to it's own method to be executed further in server startup + changed to registerVanillaCommand
+     public ServerCommandManager()
+     {
++        CommandBase.setAdminCommander(this);
++    }
++
++    public void registerVanillaCommands()
++    {
++        // Cauldron - do not register vanilla commands replaced by Bukkit
++        /*    
+         this.registerCommand(new CommandTime());
+         this.registerCommand(new CommandGameMode());
+         this.registerCommand(new CommandDifficulty());
+@@ -28,19 +36,23 @@
+         this.registerCommand(new CommandServerEmote());
+         this.registerCommand(new CommandShowSeed());
+         this.registerCommand(new CommandHelp());
+-        this.registerCommand(new CommandDebug());
++        */
++        this.registerCommand("vanilla.command", new CommandDebug()); // Cauldron - add permission node
++        /*
+         this.registerCommand(new CommandServerMessage());
+         this.registerCommand(new CommandServerSay());
+         this.registerCommand(new CommandSetSpawnpoint());
+         this.registerCommand(new CommandGameRule());
+         this.registerCommand(new CommandClearInventory());
+         this.registerCommand(new ServerCommandTestFor());
+-        this.registerCommand(new CommandSpreadPlayers());
+-        this.registerCommand(new CommandPlaySound());
+-        this.registerCommand(new ServerCommandScoreboard());
++        */
++        this.registerCommand("vanilla.command", new CommandSpreadPlayers()); // Cauldron - add permission node
++        this.registerCommand("vanilla.command", new CommandPlaySound()); // Cauldron - add permission node
++        this.registerCommand("vanilla.command", new ServerCommandScoreboard()); // Cauldron - add permission node // TODO: remove once Bukkit implements
+ 
+         if (MinecraftServer.getServer().isDedicatedServer())
+         {
++            /*
+             this.registerCommand(new CommandServerOp());
+             this.registerCommand(new CommandServerDeop());
+             this.registerCommand(new CommandServerStop());
+@@ -56,14 +68,14 @@
+             this.registerCommand(new CommandServerList());
+             this.registerCommand(new CommandServerWhitelist());
+             this.registerCommand(new CommandSetPlayerTimeout());
++            */
+         }
+         else
+         {
+-            this.registerCommand(new CommandServerPublishLocal());
++            this.registerCommand("vanilla.command", new CommandServerPublishLocal()); // Cauldron - add permission node
+         }
+-
+-        CommandBase.setAdminCommander(this);
+     }
++    // Cauldron end
+ 
+     /**
+      * Sends a message to the admins of the server from a given CommandSender with the given resource string and given

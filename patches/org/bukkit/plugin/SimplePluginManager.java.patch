@@ -1,0 +1,18 @@
+--- ../src-base/minecraft/org/bukkit/plugin/SimplePluginManager.java
++++ ../src-work/minecraft/org/bukkit/plugin/SimplePluginManager.java
+@@ -23,6 +23,7 @@
+ import org.bukkit.command.Command;
+ import org.bukkit.command.PluginCommandYamlParser;
+ import org.bukkit.command.SimpleCommandMap;
++import org.bukkit.command.defaults.TimingsCommand;
+ import org.bukkit.event.Event;
+ import org.bukkit.event.EventPriority;
+ import org.bukkit.event.HandlerList;
+@@ -274,6 +275,7 @@
+             }
+         }
+ 
++        org.bukkit.command.defaults.TimingsCommand.timingStart = System.nanoTime(); // Spigot
+         return result.toArray(new Plugin[result.size()]);
+     }
+ 

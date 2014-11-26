@@ -1,0 +1,286 @@
+--- ../src-base/minecraft/net/minecraft/item/ItemStack.java
++++ ../src-work/minecraft/net/minecraft/item/ItemStack.java
+@@ -10,6 +10,7 @@
+ import java.util.List;
+ import java.util.Random;
+ import java.util.Map.Entry;
++
+ import net.minecraft.block.Block;
+ import net.minecraft.enchantment.Enchantment;
+ import net.minecraft.enchantment.EnchantmentDurability;
+@@ -20,6 +21,7 @@
+ import net.minecraft.entity.ai.attributes.AttributeModifier;
+ import net.minecraft.entity.item.EntityItemFrame;
+ import net.minecraft.entity.player.EntityPlayer;
++import net.minecraft.entity.player.EntityPlayerMP;
+ import net.minecraft.nbt.NBTBase;
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.nbt.NBTTagList;
+@@ -31,6 +33,18 @@
+ import net.minecraft.world.World;
+ import net.minecraftforge.event.ForgeEventFactory;
+ 
++// Cauldron start
++import net.minecraft.block.BlockSapling;
++import net.minecraft.block.BlockMushroom;
++
++import org.bukkit.Location;
++import org.bukkit.TreeType;
++import org.bukkit.block.BlockState;
++import org.bukkit.craftbukkit.block.CraftBlockState;
++import org.bukkit.entity.Player;
++// Cauldron end
++import org.bukkit.event.world.StructureGrowEvent;
++
+ public final class ItemStack
+ {
+     public static final DecimalFormat field_111284_a = new DecimalFormat("#.###");
+@@ -54,8 +68,13 @@
+     /** Damage dealt to the item or number of use. Raise when using items. */
+     int itemDamage;
+ 
++    // Cauldron - due to a bug in Gson(https://code.google.com/p/google-gson/issues/detail?id=440), a stackoverflow 
++    //         can occur when gson attempts to resolve a field of a class that points to itself.
++    //         As a temporary workaround, we will prevent serialization for this object until the bug is fixed.
++    //         This fixes EE3's serialization of ItemStack.
+     /** Item frame this stack is on, or null if not on an item frame. */
+-    private EntityItemFrame itemFrame;
++    private transient EntityItemFrame itemFrame;
++    public static EntityPlayer currentPlayer; // Cauldron - reference to current player calling onItemUse
+ 
+     public ItemStack(Block par1Block)
+     {
+@@ -129,6 +148,7 @@
+      */
+     public Item getItem()
+     {
++        if (this.itemID < 0) return null; // Cauldron
+         return Item.itemsList[this.itemID];
+     }
+ 
+@@ -150,12 +170,119 @@
+ 
+     public boolean tryPlaceItemIntoWorld(EntityPlayer par1EntityPlayer, World par2World, int par3, int par4, int par5, int par6, float par7, float par8, float par9)
+     {
++        // Cauldron start - handle all placement events here
++        int meta = this.getItemDamage();
++        int size = this.stackSize;
++        NBTTagCompound nbt = null;
++        if (this.getTagCompound() != null)
++        {
++            nbt = (NBTTagCompound)this.getTagCompound().copy();
++        }
++
++        if (!(this.getItem() instanceof ItemBucket)) // if not bucket
++        {
++            par2World.captureBlockStates = true;
++            if (this.getItem() instanceof ItemDye && this.getItemDamage() == 15) 
++            {
++                int blockId = par2World.getBlockId(par3, par4, par5);
++                Block block = Block.blocksList[blockId];
++                if (block != null && (block instanceof BlockSapling || block instanceof BlockMushroom))
++                {
++                    par2World.captureTreeGeneration = true;
++                }
++            }
++        }
++        currentPlayer = par1EntityPlayer;
+         boolean flag = this.getItem().onItemUse(this, par1EntityPlayer, par2World, par3, par4, par5, par6, par7, par8, par9);
++        par2World.captureBlockStates = false;
++        currentPlayer = null;
++        if (flag && par2World.captureTreeGeneration && par2World.capturedBlockStates.size() > 0) 
++        {
++            par2World.captureTreeGeneration = false;
++            Location location = new Location(par2World.getWorld(), par3, par4, par5);
++            TreeType treeType = BlockSapling.treeType;
++            BlockSapling.treeType = null;
++            List<BlockState> blocks = (List<BlockState>) par2World.capturedBlockStates.clone();
++            par2World.capturedBlockStates.clear();
++            StructureGrowEvent event = null;
++            if (treeType != null)
++            {
++                event = new StructureGrowEvent(location, treeType, false, (Player) par1EntityPlayer.getBukkitEntity(), blocks);
++                org.bukkit.Bukkit.getPluginManager().callEvent(event);
++            }
++            if (event == null || !event.isCancelled())
++            {
++                for (BlockState blockstate : blocks) 
++                {
++                    blockstate.update(true);
++                }
++            }
+ 
++            return flag;
++        }
++
+         if (flag)
+         {
+-            par1EntityPlayer.addStat(StatList.objectUseStats[this.itemID], 1);
++            org.bukkit.event.block.BlockPlaceEvent placeEvent = null;
++            List<BlockState> blockstates = (List<BlockState>) par2World.capturedBlockStates.clone();
++            par2World.capturedBlockStates.clear();
++            if (blockstates.size() > 1) 
++            {
++                placeEvent = org.bukkit.craftbukkit.event.CraftEventFactory.callBlockMultiPlaceEvent(par2World, par1EntityPlayer, blockstates, par3, par4, par5);
++            } 
++            else if (blockstates.size() == 1)
++            {
++                placeEvent = org.bukkit.craftbukkit.event.CraftEventFactory.callBlockPlaceEvent(par2World, par1EntityPlayer, blockstates.get(0), par3, par4, par5);
++            }
++            if (placeEvent != null && (placeEvent.isCancelled() || !placeEvent.canBuild()))
++            {
++                flag = false; // cancel placement
++                // revert back all captured blocks
++                for (BlockState blockstate : blockstates)
++                {
++                    par2World.restoringBlockStates = true;
++                    blockstate.update(true, false); // restore blockstate
++                    par2World.restoringBlockStates = false;
++                }
++                // make sure to restore stack after cancel
++                this.setItemDamage(meta);
++                this.stackSize = size;
++                if (nbt != null)
++                {
++                    this.setTagCompound(nbt);
++                }
++            }
++            else
++            {
++                // drop items
++                for (int i = 0; i < par2World.capturedItems.size(); i++)
++                {
++                    par2World.spawnEntityInWorld(par2World.capturedItems.get(i));
++                }
++
++                for (BlockState blockstate : blockstates)
++                {
++                    int x = blockstate.getX();
++                    int y = blockstate.getY();
++                    int z = blockstate.getZ();
++                    int oldId = blockstate.getTypeId();
++                    int newId = par2World.getBlockId(x, y, z);
++                    int metadata = par2World.getBlockMetadata(x, y, z);
++                    int updateFlag = ((CraftBlockState)blockstate).getFlag();
++                    Block block = Block.blocksList[newId];
++                    if (block != null && !(block.hasTileEntity(metadata))) // Containers get placed automatically
++                    {
++                        block.onBlockAdded(par2World, x, y, z);
++                    }
++
++                    par2World.markAndNotifyBlock(x, y, z, oldId, newId, updateFlag);
++                }
++                par1EntityPlayer.addStat(StatList.objectUseStats[this.itemID], 1);
++            }
+         }
++        par2World.capturedBlockStates.clear();
++        par2World.capturedItems.clear();
++        // Cauldron end
+ 
+         return flag;
+     }
+@@ -193,7 +320,7 @@
+ 
+         if (this.stackTagCompound != null)
+         {
+-            par1NBTTagCompound.setTag("tag", this.stackTagCompound);
++            par1NBTTagCompound.setTag("tag", this.stackTagCompound.copy()); // CraftBukkit - make defensive copy, data is going to another thread
+         }
+ 
+         return par1NBTTagCompound;
+@@ -215,7 +342,8 @@
+ 
+         if (par1NBTTagCompound.hasKey("tag"))
+         {
+-            this.stackTagCompound = par1NBTTagCompound.getCompoundTag("tag");
++            // CraftBukkit - make defensive copy as this data may be coming from the save thread
++            this.stackTagCompound = (NBTTagCompound) par1NBTTagCompound.getCompoundTag("tag").copy();
+         }
+     }
+ 
+@@ -315,8 +443,15 @@
+      * getMaxDamage(). Returns false otherwise or if the ItemStack can't be damaged or if all points of damage are
+      * negated.
+      */
++    // Spigot start
+     public boolean attemptDamageItem(int par1, Random par2Random)
+     {
++        return isDamaged(par1, par2Random, null);
++    }
++
++    public boolean isDamaged(int par1, Random par2Random, EntityLivingBase entitylivingbase)
++    {
++        // Spigot end
+         if (!this.isItemStackDamageable())
+         {
+             return false;
+@@ -338,6 +473,21 @@
+ 
+                 par1 -= k;
+ 
++                // Spigot start
++                if (entitylivingbase instanceof EntityPlayerMP)
++                {
++                    org.bukkit.craftbukkit.inventory.CraftItemStack item = org.bukkit.craftbukkit.inventory.CraftItemStack.asCraftMirror(this);
++                    org.bukkit.event.player.PlayerItemDamageEvent event = new org.bukkit.event.player.PlayerItemDamageEvent((org.bukkit.entity.Player) entitylivingbase.getBukkitEntity(), item, par1);
++                    org.bukkit.Bukkit.getServer().getPluginManager().callEvent(event);
++
++                    if (event.isCancelled())
++                    {
++                        return false;
++                    }
++
++                    par1 = event.getDamage();
++                }
++
+                 if (par1 <= 0)
+                 {
+                     return false;
+@@ -379,6 +529,13 @@
+                         this.stackSize = 0;
+                     }
+ 
++                    // CraftBukkit start - Check for item breaking
++                    if (this.stackSize == 0 && par2EntityLivingBase instanceof EntityPlayer)
++                    {
++                        org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerItemBreakEvent((EntityPlayer) par2EntityLivingBase, this);
++                    }
++
++                    // CraftBukkit end
+                     this.itemDamage = 0;
+                 }
+             }
+@@ -495,7 +652,15 @@
+             --this.animationsToGo;
+         }
+ 
+-        Item.itemsList[this.itemID].onUpdate(this, par1World, par2Entity, par3, par4);
++        // Cauldron start - print exception instead of kicking client (if they have a corrupted item in their inventory)
++        try {
++            Item.itemsList[this.itemID].onUpdate(this, par1World, par2Entity, par3, par4);
++        } catch (Throwable ex) {
++            System.out.println("updateAnimation exception");
++            ex.printStackTrace();
++            return;
++        }
++        // Cauldron end
+     }
+ 
+     public void onCrafting(World par1World, EntityPlayer par2EntityPlayer, int par3)
+@@ -548,6 +713,7 @@
+      */
+     public void setTagCompound(NBTTagCompound par1NBTTagCompound)
+     {
++        // Cauldron - do not alter name of compound. Fixes Ars Magica 2 Spellbooks
+         this.stackTagCompound = par1NBTTagCompound;
+     }
+ 
+@@ -872,7 +1038,7 @@
+     }
+ 
+     /**
+-     * Gets the attribute modifiers for this ItemStack.nWill check for an NBT tag list containing modifiers for the
++     * Gets the attribute modifiers for this ItemStack.\nWill check for an NBT tag list containing modifiers for the
+      * stack.
+      */
+     public Multimap getAttributeModifiers()

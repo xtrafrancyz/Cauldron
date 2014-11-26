@@ -1,0 +1,74 @@
+--- ../src-base/minecraft/net/minecraft/network/TcpConnection.java
++++ ../src-work/minecraft/net/minecraft/network/TcpConnection.java
+@@ -26,6 +26,7 @@
+ import net.minecraft.network.packet.Packet252SharedKey;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.util.CryptManager;
++import mcp.mobius.mobiuscore.profiler.ProfilerSection; // Cauldron - mobius import
+ 
+ public class TcpConnection implements INetworkManager
+ {
+@@ -42,7 +43,7 @@
+     private Socket networkSocket;
+ 
+     /** The InetSocketAddress of the remote endpoint */
+-    private final SocketAddress remoteSocketAddress;
++    private SocketAddress remoteSocketAddress; // Spigot - remove final
+ 
+     /** The input stream connected to the socket. */
+     private volatile DataInputStream socketInputStream;
+@@ -265,6 +266,7 @@
+                 }
+             }
+ 
++            ProfilerSection.PACKET_OUTBOUND.start(packet); // Cauldron - mobius hook
+             return packet;
+         }
+     }
+@@ -323,7 +325,7 @@
+         try
+         {
+             Packet packet = Packet.readPacket(this.tcpConLogAgent, this.socketInputStream, this.theNetHandler.isServerHandler(), this.networkSocket);
+-
++            ProfilerSection.PACKET_INBOUND.start(packet); // Cauldron - mobius hook
+             if (packet != null)
+             {
+                 if (packet instanceof Packet252SharedKey && !this.isInputBeingDecrypted)
+@@ -378,7 +380,7 @@
+      */
+     private void onNetworkError(Exception par1Exception)
+     {
+-        par1Exception.printStackTrace();
++        // par1Exception.printStackTrace(); // CraftBukkit - Remove console spam
+         this.networkShutdown("disconnect.genericReason", new Object[] {"Internal exception: " + par1Exception.toString()});
+     }
+ 
+@@ -436,6 +438,18 @@
+     {
+         if (this.sendQueueByteLength > 2097152)
+         {
++            // Cauldron start - better debug
++            MinecraftServer.getServer().logInfo("Send queue byte length exceeded 2097152 bytes. " + this.sendQueueByteLength + " bytes were queued.");
++            MinecraftServer.getServer().logInfo("Dumping current data packets in queue...");
++            for (Object dataPacket : this.dataPackets)
++            {
++                if (dataPacket instanceof Packet)
++                {
++                    Packet packet = (Packet)dataPacket;
++                    MinecraftServer.getServer().logInfo("[Packet: " + packet + "] [size: " + packet.getPacketSize() + "]");
++                }
++            }
++            // Cauldron end
+             this.networkShutdown("disconnect.overflow", new Object[0]);
+         }
+ 
+@@ -593,4 +607,9 @@
+     {
+         return par0TcpConnection.writeThread;
+     }
++
++    public void setSocketAddress(SocketAddress address)
++    {
++        remoteSocketAddress = address;    // Spigot
++    }
+ }

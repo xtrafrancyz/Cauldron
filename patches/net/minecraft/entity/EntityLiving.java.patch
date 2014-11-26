@@ -1,0 +1,198 @@
+--- ../src-base/minecraft/net/minecraft/entity/EntityLiving.java
++++ ../src-work/minecraft/net/minecraft/entity/EntityLiving.java
+@@ -19,6 +19,7 @@
+ import net.minecraft.entity.monster.IMob;
+ import net.minecraft.entity.passive.EntityTameable;
+ import net.minecraft.entity.player.EntityPlayer;
++import net.minecraft.entity.player.EntityPlayerMP;
+ import net.minecraft.item.Item;
+ import net.minecraft.item.ItemArmor;
+ import net.minecraft.item.ItemStack;
+@@ -28,6 +29,7 @@
+ import net.minecraft.nbt.NBTTagList;
+ import net.minecraft.network.packet.Packet39AttachEntity;
+ import net.minecraft.pathfinding.PathNavigate;
++import net.minecraft.server.MinecraftServer;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.World;
+ import net.minecraft.world.WorldServer;
+@@ -36,6 +38,11 @@
+ import net.minecraftforge.event.Event.Result;
+ import net.minecraftforge.event.ForgeEventFactory;
+ import net.minecraftforge.event.entity.living.LivingSpawnEvent.AllowDespawn;
++// CraftBukkit start
++import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.event.entity.EntityUnleashEvent;
++import org.bukkit.event.entity.EntityUnleashEvent.UnleashReason;
++// CraftBukkit end
+ 
+ public abstract class EntityLiving extends EntityLivingBase
+ {
+@@ -62,13 +69,13 @@
+     private ItemStack[] equipment = new ItemStack[5];
+ 
+     /** Chances for each equipment piece from dropping when this entity dies. */
+-    protected float[] equipmentDropChances = new float[5];
++    public float[] equipmentDropChances = new float[5]; // CraftBukkit - protected -> public
+ 
+     /** Whether this entity can pick up items from the ground. */
+-    private boolean canPickUpLoot;
++    public boolean canPickUpLoot; // CraftBukkit - private -> public
+ 
+     /** Whether this entity should NOT despawn. */
+-    private boolean persistenceRequired;
++    public boolean persistenceRequired; // CraftBukkit - private -> public
+     protected float defaultPitch;
+ 
+     /** This entity's current target. */
+@@ -380,7 +387,23 @@
+         super.readEntityFromNBT(par1NBTTagCompound);
+         this.setCanPickUpLoot(par1NBTTagCompound.getBoolean("CanPickUpLoot"));
+         this.persistenceRequired = par1NBTTagCompound.getBoolean("PersistenceRequired");
++        // CraftBukkit start - If looting or persistence is false only use it if it was set after we started using it
++        boolean data = par1NBTTagCompound.getBoolean("CanPickUpLoot");
+ 
++        if (isLevelAtLeast(par1NBTTagCompound, 1) || data)
++        {
++            this.canPickUpLoot = data;
++        }
++
++        data = par1NBTTagCompound.getBoolean("PersistenceRequired");
++
++        if (isLevelAtLeast(par1NBTTagCompound, 1) || data)
++        {
++            this.persistenceRequired = data;
++        }
++
++        // CraftBukkit end
++
+         if (par1NBTTagCompound.hasKey("CustomName") && par1NBTTagCompound.getString("CustomName").length() > 0)
+         {
+             this.setCustomNameTag(par1NBTTagCompound.getString("CustomName"));
+@@ -566,7 +589,7 @@
+             }
+             else
+             {
+-                this.setDead();
++                this.despawn("Forge Age Limit");
+             }
+         }
+         else
+@@ -580,23 +603,34 @@
+                 double d2 = entityplayer.posZ - this.posZ;
+                 double d3 = d0 * d0 + d1 * d1 + d2 * d2;
+ 
+-                if (this.canDespawn() && d3 > 16384.0D)
++                if (this.canDespawn() && d3 > 16384.0D) // Cauldron keep logic for despawn check
+                 {
+-                    this.setDead();
++                    this.despawn("Out of range");
+                 }
+ 
+-                if (this.entityAge > 600 && this.rand.nextInt(800) == 0 && d3 > 1024.0D && this.canDespawn())
++                if (this.entityAge > 600 && this.rand.nextInt(800) == 0 && d3 > 1024.0D && this.canDespawn()) // Cauldron keep logic for despawn check
+                 {
+-                    this.setDead();
++                    this.despawn("Random Aged");
+                 }
+                 else if (d3 < 1024.0D)
+                 {
+                     this.entityAge = 0;
+                 }
+             }
++            // Cauldron start - Force despawn of entity if a player isn't near
++            else if (this.worldObj.cauldronConfig.entitiesDespawnImmediate && this.canDespawn())//getBoolean("entities.despawn-immediate", true) && this.canDespawn())
++            {
++                this.despawn("No Player : Immediate");
++            }
++            // Cauldron end
+         }
+     }
+ 
++    private void despawn(String reason) {
++        this.setDead();
++        net.minecraftforge.cauldron.CauldronHooks.logEntityDespawn(this, reason);
++    }
++
+     protected void updateAITasks()
+     {
+         ++this.entityAge;
+@@ -1131,6 +1165,14 @@
+     {
+         if (this.getLeashed() && this.getLeashedToEntity() == par1EntityPlayer)
+         {
++            // CraftBukkit start
++            if (CraftEventFactory.callPlayerUnleashEntityEvent(this, par1EntityPlayer).isCancelled())
++            {
++                ((EntityPlayerMP) par1EntityPlayer).playerNetServerHandler.sendPacketToPlayer(new Packet39AttachEntity(1, this, this.getLeashedToEntity()));
++                return false;
++            }
++
++            // CraftBukkit end
+             this.clearLeashed(true, !par1EntityPlayer.capabilities.isCreativeMode);
+             return true;
+         }
+@@ -1142,6 +1184,14 @@
+             {
+                 if (!(this instanceof EntityTameable) || !((EntityTameable)this).isTamed())
+                 {
++                    // CraftBukkit start
++                    if (CraftEventFactory.callPlayerLeashEntityEvent(this, par1EntityPlayer, par1EntityPlayer).isCancelled())
++                    {
++                        ((EntityPlayerMP) par1EntityPlayer).playerNetServerHandler.sendPacketToPlayer(new Packet39AttachEntity(1, this, this.getLeashedToEntity()));
++                        return false;
++                    }
++
++                    // CraftBukkit end
+                     this.setLeashedToEntity(par1EntityPlayer, true);
+                     --itemstack.stackSize;
+                     return true;
+@@ -1149,6 +1199,14 @@
+ 
+                 if (par1EntityPlayer.getCommandSenderName().equalsIgnoreCase(((EntityTameable)this).getOwnerName()))
+                 {
++                    // CraftBukkit start
++                    if (CraftEventFactory.callPlayerLeashEntityEvent(this, par1EntityPlayer, par1EntityPlayer).isCancelled())
++                    {
++                        ((EntityPlayerMP) par1EntityPlayer).playerNetServerHandler.sendPacketToPlayer(new Packet39AttachEntity(1, this, this.getLeashedToEntity()));
++                        return false;
++                    }
++
++                    // CraftBukkit end
+                     this.setLeashedToEntity(par1EntityPlayer, true);
+                     --itemstack.stackSize;
+                     return true;
+@@ -1178,6 +1236,7 @@
+         {
+             if (this.leashedToEntity == null || this.leashedToEntity.isDead)
+             {
++                this.worldObj.getServer().getPluginManager().callEvent(new EntityUnleashEvent(this.getBukkitEntity(), UnleashReason.HOLDER_GONE)); // CraftBukkit
+                 this.clearLeashed(true, true);
+             }
+         }
+@@ -1221,8 +1280,8 @@
+     }
+ 
+     /**
+-     * Sets the entity to be leashed to.nArgs:n@param par1Entity: The entity to be tethered to.n@param par2: Whether to
+-     * send an attaching notification packet to surrounding players.
++     * Sets the entity to be leashed to.\nArgs:\n@param par1Entity: The entity to be tethered to.\n@param par2: Whether
++     * to send an attaching notification packet to surrounding players.
+      */
+     public void setLeashedToEntity(Entity par1Entity, boolean par2)
+     {
+@@ -1272,10 +1331,14 @@
+             }
+             else
+             {
++                this.worldObj.getServer().getPluginManager().callEvent(new EntityUnleashEvent(this.getBukkitEntity(), UnleashReason.UNKNOWN)); // CraftBukkit
+                 this.clearLeashed(false, true);
+             }
+         }
+ 
+         this.field_110170_bx = null;
+     }
++    public boolean func_70692_ba_CodeFix_Public(){
++        return canDespawn();
++    }
+ }

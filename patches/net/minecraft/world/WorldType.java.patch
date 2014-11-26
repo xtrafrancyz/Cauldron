@@ -1,0 +1,23 @@
+--- ../src-base/minecraft/net/minecraft/world/WorldType.java
++++ ../src-work/minecraft/net/minecraft/world/WorldType.java
+@@ -17,6 +17,7 @@
+ import net.minecraft.world.gen.*;
+ import net.minecraft.world.biome.*;
+ import net.minecraft.world.chunk.IChunkProvider;
++import net.minecraftforge.common.EnumHelper; // Cauldron
+ 
+ public class WorldType
+ {
+@@ -78,6 +79,12 @@
+             default:
+                 biomesForWorldType = base12Biomes;
+         }
++        // Cauldron start - add worldtype for bukkit if it does not already exist
++        if (org.bukkit.WorldType.getByName(par2Str) == null)
++        {
++            EnumHelper.addBukkitWorldType(par2Str);
++        }
++        // Cauldron end
+     }
+ 
+     public String getWorldTypeName()

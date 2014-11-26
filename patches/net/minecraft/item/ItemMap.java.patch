@@ -1,0 +1,35 @@
+--- ../src-base/minecraft/net/minecraft/item/ItemMap.java
++++ ../src-work/minecraft/net/minecraft/item/ItemMap.java
+@@ -14,6 +14,10 @@
+ import net.minecraft.world.chunk.Chunk;
+ import net.minecraft.world.storage.MapData;
+ import net.minecraft.world.storage.MapInfo;
++// CraftBukkit start
++import org.bukkit.Bukkit;
++import org.bukkit.event.server.MapInitializeEvent;
++// CraftBukkit end
+ 
+ public class ItemMap extends ItemMapBase
+ {
+@@ -55,6 +59,10 @@
+             mapdata.dimension = par2World.provider.dimensionId;
+             mapdata.markDirty();
+             par2World.setItemData(s, mapdata);
++            // CraftBukkit start
++            MapInitializeEvent event = new MapInitializeEvent(mapdata.mapView);
++            Bukkit.getServer().getPluginManager().callEvent(event);
++            // CraftBukkit end
+         }
+ 
+         return mapdata;
+@@ -330,6 +338,10 @@
+             mapdata1.dimension = mapdata.dimension;
+             mapdata1.markDirty();
+             par2World.setItemData("map_" + par1ItemStack.getItemDamage(), mapdata1);
++            // CraftBukkit start
++            MapInitializeEvent event = new MapInitializeEvent(mapdata1.mapView);
++            Bukkit.getServer().getPluginManager().callEvent(event);
++            // CraftBukkit end
+         }
+     }
+ 

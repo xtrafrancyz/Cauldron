@@ -1,0 +1,113 @@
+--- ../src-base/minecraft/net/minecraft/network/packet/Packet51MapChunk.java
++++ ../src-work/minecraft/net/minecraft/network/packet/Packet51MapChunk.java
+@@ -48,8 +48,6 @@
+     /** A temporary storage for the compressed chunk data byte array. */
+     private static byte[] temp = new byte[196864];
+ 
+-    private Semaphore deflateGate;
+-
+     public Packet51MapChunk()
+     {
+         this.isChunkDataPacket = true;
+@@ -62,22 +60,18 @@
+         this.zCh = par1Chunk.zPosition;
+         this.includeInitialize = par2;
+         Packet51MapChunkData packet51mapchunkdata = getMapChunkData(par1Chunk, par2, par3);
++        Deflater deflater = new Deflater(4);
+         this.yChMax = packet51mapchunkdata.chunkHasAddSectionFlag;
+         this.yChMin = packet51mapchunkdata.chunkExistFlag;
+-        this.compressedChunkData = packet51mapchunkdata.compressedData;
+-        this.deflateGate = new Semaphore(1);
+-    }
++        par1Chunk.worldObj.spigotConfig.antiXrayInstance.obfuscateSync(par1Chunk.xPosition, par1Chunk.zPosition, par3, packet51mapchunkdata.compressedData, par1Chunk.worldObj); // Spigot
+ 
+-    private void deflate()
+-    {
+-        Deflater deflater = new Deflater(-1);
+         try
+         {
+-            deflater.setInput(compressedChunkData, 0, compressedChunkData.length);
++            this.compressedChunkData = packet51mapchunkdata.compressedData;
++            deflater.setInput(packet51mapchunkdata.compressedData, 0, packet51mapchunkdata.compressedData.length);
+             deflater.finish();
+-            byte[] deflated = new byte[compressedChunkData.length];
+-            this.tempLength = deflater.deflate(deflated);
+-            this.chunkData = deflated;
++            this.chunkData = new byte[packet51mapchunkdata.compressedData.length];
++            this.tempLength = deflater.deflate(this.chunkData);
+         }
+         finally
+         {
+@@ -144,16 +138,6 @@
+      */
+     public void writePacketData(DataOutput par1DataOutput) throws IOException
+     {
+-        if (chunkData == null)
+-        {
+-            deflateGate.acquireUninterruptibly();
+-            if (chunkData == null)
+-            {
+-                deflate();
+-            }
+-            deflateGate.release();
+-        }
+-
+         par1DataOutput.writeInt(this.xCh);
+         par1DataOutput.writeInt(this.zCh);
+         par1DataOutput.writeBoolean(this.includeInitialize);
+@@ -225,8 +209,11 @@
+             if (aextendedblockstorage[l] != null && (!par1 || !aextendedblockstorage[l].isEmpty()) && (par2 & 1 << l) != 0)
+             {
+                 nibblearray = aextendedblockstorage[l].getMetadataArray();
+-                System.arraycopy(nibblearray.data, 0, abyte, j, nibblearray.data.length);
+-                j += nibblearray.data.length;
++                // Spigot start
++                // System.arraycopy(nibblearray.a, 0, abyte, j, nibblearray.a.length);
++                // j += nibblearray.a.length;
++                j = nibblearray.copyToByteArray(abyte, j);
++                // Spigot end
+             }
+         }
+ 
+@@ -235,8 +222,11 @@
+             if (aextendedblockstorage[l] != null && (!par1 || !aextendedblockstorage[l].isEmpty()) && (par2 & 1 << l) != 0)
+             {
+                 nibblearray = aextendedblockstorage[l].getBlocklightArray();
+-                System.arraycopy(nibblearray.data, 0, abyte, j, nibblearray.data.length);
+-                j += nibblearray.data.length;
++                // Spigot start
++                // System.arraycopy(nibblearray.a, 0, abyte, j, nibblearray.a.length);
++                // j += nibblearray.a.length;
++                j = nibblearray.copyToByteArray(abyte, j);
++                // Spigot end
+             }
+         }
+ 
+@@ -247,8 +237,11 @@
+                 if (aextendedblockstorage[l] != null && (!par1 || !aextendedblockstorage[l].isEmpty()) && (par2 & 1 << l) != 0)
+                 {
+                     nibblearray = aextendedblockstorage[l].getSkylightArray();
+-                    System.arraycopy(nibblearray.data, 0, abyte, j, nibblearray.data.length);
+-                    j += nibblearray.data.length;
++                    // Spigot start
++                    // System.arraycopy(nibblearray.a, 0, abyte, j, nibblearray.a.length);
++                    // j += nibblearray.a.length;
++                    j = nibblearray.copyToByteArray(abyte, j);
++                    // Spigot end
+                 }
+             }
+         }
+@@ -260,8 +253,11 @@
+                 if (aextendedblockstorage[l] != null && (!par1 || !aextendedblockstorage[l].isEmpty()) && aextendedblockstorage[l].getBlockMSBArray() != null && (par2 & 1 << l) != 0)
+                 {
+                     nibblearray = aextendedblockstorage[l].getBlockMSBArray();
+-                    System.arraycopy(nibblearray.data, 0, abyte, j, nibblearray.data.length);
+-                    j += nibblearray.data.length;
++                    // Spigot start
++                    //System.arraycopy(nibblearray.a, 0, abyte, j, nibblearray.a.length);
++                    //j += nibblearray.a.length;
++                    j = nibblearray.copyToByteArray(abyte, j);
++                    // Spigot end
+                 }
+             }
+         }

@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockFluid.java
++++ ../src-work/minecraft/net/minecraft/block/BlockFluid.java
+@@ -150,7 +150,7 @@
+     }
+ 
+     /**
+-     * Returns whether this block is collideable based on the arguments passed in n@param par1 block metaData n@param
++     * Returns whether this block is collideable based on the arguments passed in \n@param par1 block metaData \n@param
+      * par2 whether the player right-clicked while holding a boat
+      */
+     public boolean canCollideCheck(int par1, boolean par2)

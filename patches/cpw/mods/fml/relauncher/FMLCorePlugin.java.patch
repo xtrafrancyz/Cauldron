@@ -1,0 +1,17 @@
+--- ../src-base/minecraft/cpw/mods/fml/relauncher/FMLCorePlugin.java
++++ ../src-work/minecraft/cpw/mods/fml/relauncher/FMLCorePlugin.java
+@@ -16,7 +16,14 @@
+ 
+ public class FMLCorePlugin implements IFMLLoadingPlugin
+ {
++    @SuppressWarnings("deprecation")
+     @Override
++    public String[] getLibraryRequestClass()
++    {
++        return null;
++    }
++
++    @Override
+     public String[] getASMTransformerClass()
+     {
+         return new String[] {

@@ -1,0 +1,98 @@
+--- ../src-base/minecraft/net/minecraft/block/Block.java
++++ ../src-work/minecraft/net/minecraft/block/Block.java
+@@ -337,6 +337,7 @@
+     private String unlocalizedName;
+     @SideOnly(Side.CLIENT)
+     protected Icon blockIcon;
++    public boolean isForgeBlock; // Cauldron
+ 
+     public Block(int par1, Material par2Material)
+     {
+@@ -358,6 +359,10 @@
+             lightOpacity[par1] = this.isOpaqueCube() ? 255 : 0;
+             canBlockGrass[par1] = !par2Material.getCanBlockGrass();
+         }
++        // Cauldron start
++        org.bukkit.Material.addMaterial(this.blockID, true); // Cauldron - many mods do not register blocks through GameRegistry so to be safe we need to add materials here
++        this.isForgeBlock = (this.getClass().getName().length() > 3 && !this.getClass().getName().startsWith("net.minecraft.block")) ? true : false; // Cauldron
++        // Cauldron end
+     }
+ 
+     /**
+@@ -716,14 +721,15 @@
+      */
+     public void dropBlockAsItemWithChance(World par1World, int par2, int par3, int par4, int par5, float par6, int par7)
+     {
+-        if (!par1World.isRemote)
++        if (!par1World.isRemote && !par1World.restoringBlockStates) // Cauldron do not drop items while restoring blockstates, prevents item dupe
+         {
+             ArrayList<ItemStack> items = getBlockDropped(par1World, par2, par3, par4, par5, par7);
+             par6 = ForgeEventFactory.fireBlockHarvesting(items, par1World, this, par2, par3, par4, par5, par7, par6, false, harvesters.get());
+             
+             for (ItemStack item : items)
+             {
+-                if (par1World.rand.nextFloat() <= par6)
++                // CraftBukkit - <= to < to allow for plugins to completely disable block drops from explosions
++                if (par1World.rand.nextFloat() < par6)
+                 {
+                     this.dropBlockAsItem_do(par1World, par2, par3, par4, item);
+                 }
+@@ -736,7 +742,7 @@
+      */
+     protected void dropBlockAsItem_do(World par1World, int par2, int par3, int par4, ItemStack par5ItemStack)
+     {
+-        if (!par1World.isRemote && par1World.getGameRules().getGameRuleBooleanValue("doTileDrops"))
++        if (!par1World.isRemote && par1World.getGameRules().getGameRuleBooleanValue("doTileDrops") && !par1World.restoringBlockStates) // Cauldron do not drop items while restoring blockstates, prevents item dupe
+         {
+             float f = 0.7F;
+             double d0 = (double)(par1World.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
+@@ -744,7 +750,16 @@
+             double d2 = (double)(par1World.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
+             EntityItem entityitem = new EntityItem(par1World, (double)par2 + d0, (double)par3 + d1, (double)par4 + d2, par5ItemStack);
+             entityitem.delayBeforeCanPickup = 10;
+-            par1World.spawnEntityInWorld(entityitem);
++            // Cauldron start
++            if (par1World.captureBlockStates)
++            {
++                par1World.capturedItems.add(entityitem);
++            }
++            else
++            {
++                par1World.spawnEntityInWorld(entityitem);
++            }
++            // Cauldron end
+         }
+     }
+ 
+@@ -1492,6 +1507,23 @@
+         StatList.initBreakableStats();
+     }
+ 
++    // Spigot start
++    public static float range(float min, float value, float max)
++    {
++        if (value < min)
++        {
++            return min;
++        }
++
++        if (value > max)
++        {
++            return max;
++        }
++
++        return value;
++    }
++    // Spigot end    
++
+     /* =================================================== FORGE START =====================================*/
+     /**
+      * Get a light value for the block at the specified coordinates, normal ranges are between 0 and 15
+@@ -2282,6 +2314,7 @@
+      */
+     public void onPlantGrow(World world, int x, int y, int z, int sourceX, int sourceY, int sourceZ)
+     {
++        if (world == null) return; // Cauldron - safeguard
+         if (blockID == grass.blockID)
+         {
+             world.setBlock(x, y, z, dirt.blockID, 0, 2);

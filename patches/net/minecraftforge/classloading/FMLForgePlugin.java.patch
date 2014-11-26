@@ -1,0 +1,15 @@
+--- ../src-base/minecraft/net/minecraftforge/classloading/FMLForgePlugin.java
++++ ../src-work/minecraft/net/minecraftforge/classloading/FMLForgePlugin.java
+@@ -11,6 +11,12 @@
+     public static File forgeLocation;
+ 
+     @Override
++    public String[] getLibraryRequestClass()
++    {
++        return null;
++    }
++
++    @Override
+     public String[] getASMTransformerClass()
+     {
+         return new String[]{ 

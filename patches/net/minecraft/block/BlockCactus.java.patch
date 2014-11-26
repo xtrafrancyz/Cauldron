@@ -1,0 +1,55 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockCactus.java
++++ ../src-work/minecraft/net/minecraft/block/BlockCactus.java
+@@ -7,6 +7,7 @@
+ import net.minecraft.client.renderer.texture.IconRegister;
+ import net.minecraft.creativetab.CreativeTabs;
+ import net.minecraft.entity.Entity;
++import net.minecraft.entity.EntityLivingBase;
+ import net.minecraft.util.AxisAlignedBB;
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.util.Icon;
+@@ -15,6 +16,7 @@
+ import net.minecraftforge.common.EnumPlantType;
+ import net.minecraftforge.common.ForgeDirection;
+ import net.minecraftforge.common.IPlantable;
++import org.bukkit.event.entity.EntityDamageByBlockEvent;  // CraftBukkit
+ 
+ public class BlockCactus extends Block implements IPlantable
+ {
+@@ -48,9 +50,9 @@
+             {
+                 int i1 = par1World.getBlockMetadata(par2, par3, par4);
+ 
+-                if (i1 == 15)
++                if (i1 >= (byte) range(3, (par1World.growthOdds / par1World.spigotConfig.cactusModifier * 15) + 0.5F, 15)) // Spigot
+                 {
+-                    par1World.setBlock(par2, par3 + 1, par4, this.blockID);
++                    org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockGrowEvent(par1World, par2, par3 + 1, par4, this.blockID, 0); // CraftBukkit
+                     par1World.setBlockMetadataWithNotify(par2, par3, par4, 0, 4);
+                     this.onNeighborBlockChange(par1World, par2, par3 + 1, par4, this.blockID);
+                 }
+@@ -171,6 +173,24 @@
+      */
+     public void onEntityCollidedWithBlock(World par1World, int par2, int par3, int par4, Entity par5Entity)
+     {
++        // CraftBukkit start - EntityDamageByBlock event
++        if (par5Entity instanceof EntityLivingBase)
++        {
++            org.bukkit.block.Block damager = par1World.getWorld().getBlockAt(par2, par3, par4);
++            org.bukkit.entity.Entity damagee = (par5Entity == null) ? null : par5Entity.getBukkitEntity();
++            EntityDamageByBlockEvent event = new EntityDamageByBlockEvent(damager, damagee, org.bukkit.event.entity.EntityDamageEvent.DamageCause.CONTACT, 1D);
++            par1World.getServer().getPluginManager().callEvent(event);
++
++            if (!event.isCancelled())
++            {
++                damagee.setLastDamageCause(event);
++                par5Entity.attackEntityFrom(DamageSource.cactus, (float) event.getDamage());
++            }
++
++            return;
++        }
++
++        // CraftBukkit end
+         par5Entity.attackEntityFrom(DamageSource.cactus, 1.0F);
+     }
+ 

@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockCocoa.java
++++ ../src-work/minecraft/net/minecraft/block/BlockCocoa.java
+@@ -56,7 +56,7 @@
+             if (i1 < 2)
+             {
+                 ++i1;
+-                par1World.setBlockMetadataWithNotify(par2, par3, par4, i1 << 2 | getDirection(l), 2);
++                org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockGrowEvent(par1World, par2, par3, par4, this.blockID, i1 << 2 | getDirection(l)); // CraftBukkit
+             }
+         }
+     }

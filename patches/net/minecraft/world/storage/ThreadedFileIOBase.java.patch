@@ -1,0 +1,12 @@
+--- ../src-base/minecraft/net/minecraft/world/storage/ThreadedFileIOBase.java
++++ ../src-work/minecraft/net/minecraft/world/storage/ThreadedFileIOBase.java
+@@ -23,7 +23,9 @@
+     public void run()
+     {
+         while (true)
++        {
+             this.processQueue();
++        }
+     }
+ 
+     /**

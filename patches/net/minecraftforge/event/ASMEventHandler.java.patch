@@ -1,0 +1,33 @@
+--- ../src-base/minecraft/net/minecraftforge/event/ASMEventHandler.java
++++ ../src-work/minecraft/net/minecraftforge/event/ASMEventHandler.java
+@@ -11,6 +11,7 @@
+ import org.objectweb.asm.Type;
+ 
+ import com.google.common.collect.Maps;
++import mcp.mobius.mobiuscore.profiler.ProfilerSection; // Cauldron - mobius import
+ 
+ 
+ public class ASMEventHandler implements IEventListener
+@@ -23,8 +24,10 @@
+     
+     private final IEventListener handler;
+     private final ForgeSubscribe subInfo;
++    private final String         package_; // Cauldron - mobius
+     public ASMEventHandler(Object target, Method method) throws Exception
+     {
++        package_ = method.getDeclaringClass().getCanonicalName(); // Cauldron - mobius
+         handler = (IEventListener)createWrapper(method).getConstructor(Object.class).newInstance(target);
+         subInfo = method.getAnnotation(ForgeSubscribe.class);
+     }
+@@ -36,7 +39,11 @@
+         {
+             if (!event.isCancelable() || !event.isCanceled() || subInfo.receiveCanceled())
+             {
++                // Cauldron start - mobius hooks
++            	ProfilerSection.EVENT_INVOKE.start();
+                 handler.invoke(event);
++                ProfilerSection.EVENT_INVOKE.stop(event, package_, handler);
++                // Cauldron end
+             }
+         }
+     }

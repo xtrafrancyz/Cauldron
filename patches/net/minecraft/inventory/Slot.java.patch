@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/net/minecraft/inventory/Slot.java
++++ ../src-work/minecraft/net/minecraft/inventory/Slot.java
+@@ -11,7 +11,7 @@
+ public class Slot
+ {
+     /** The index of the slot in the inventory. */
+-    private final int slotIndex;
++    public final int slotIndex; // CraftBukkit - private -> public
+ 
+     /** The inventory we want to extract a slot from. */
+     public final IInventory inventory;

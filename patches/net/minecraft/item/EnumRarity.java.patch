@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/net/minecraft/item/EnumRarity.java
++++ ../src-work/minecraft/net/minecraft/item/EnumRarity.java
+@@ -9,7 +9,7 @@
+ 
+     /**
+      * A decimal representation of the hex color codes of a the color assigned to this rarity type. (13 becomes d as in
+-     * 247d which is light purple)
++     * \247d which is light purple)
+      */
+     public final int rarityColor;
+ 

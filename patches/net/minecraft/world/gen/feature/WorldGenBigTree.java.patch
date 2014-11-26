@@ -1,0 +1,14 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/feature/WorldGenBigTree.java
++++ ../src-work/minecraft/net/minecraft/world/gen/feature/WorldGenBigTree.java
+@@ -429,9 +429,10 @@
+                 int k = this.worldObj.getBlockId(aint3[0], aint3[1], aint3[2]);
+                 Block block = Block.blocksList[k];
+ 
+-                if (block != null && 
++                if ((block != null &&
+                    !block.isAirBlock(worldObj, aint3[0], aint3[1], aint3[2]) && 
+                    !block.isLeaves(worldObj, aint3[0], aint3[1], aint3[2]))
++                   || aint3[1] >= 256)   // CraftBukkit - fix trees wrapping around
+                 {
+                     break;
+                 }

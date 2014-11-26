@@ -1,0 +1,28 @@
+Manifest-Version: 1.0
+Implementation-Vendor: Cauldron
+Implementation-Title: Cauldron
+Implementation-Version: git-Cauldron-1.6.4-R2.1-forge965-B0
+Forge-Version: 9.11.1.965
+Specification-Vendor: Bukkit Team
+Specification-Title: Bukkit
+Specification-Version: 1.6.4-R2.1-SNAPSHOT
+Main-Class: cpw.mods.fml.relauncher.ServerLaunchWrapper
+Class-Path: libraries/net/minecraft/launchwrapper/1.8/launchwrapper-1.
+ 8.jar libraries/org/ow2/asm/asm-all/4.1/asm-all-4.1.jar libraries/org
+ /scala-lang/scala-library/2.10.2/scala-library-2.10.2.jar libraries/o
+ rg/scala-lang/scala-compiler/2.10.2/scala-compiler-2.10.2.jar librari
+ es/lzma/lzma/0.0.1/lzma-0.0.1.jar libraries/net/sf/jopt-simple/jopt-s
+ imple/4.5/jopt-simple-4.5.jar libraries/com/google/guava/guava/14.0/g
+ uava-14.0.jar libraries/org/yaml/snakeyaml/1.9/snakeyaml-1.9.jar libr
+ aries/commons-lang/commons-lang/2.6/commons-lang-2.6.jar libraries/or
+ g/avaje/ebean/2.7.3/ebean-2.7.3.jar libraries/jline/jline/2.6/jline-2
+ .6.jar libraries/net/md-5/SpecialSource/1.7-SNAPSHOT/SpecialSource-1.
+ 7-SNAPSHOT.jar libraries/org/fusesource/jansi/jansi/1.8/jansi-1.8.jar
+  libraries/net/sourceforge/argo/argo/2.25/argo-2.25.jar libraries/com
+ /googlecode/json-simple/json-simple/1.1/json-simple-1.1.jar libraries
+ /org/xerial/sqlite-jdbc/3.7.2/sqlite-jdbc-3.7.2.jar libraries/mysql/m
+ ysql-connector-java/5.1.14/mysql-connector-java-5.1.14.jar libraries/
+ javax/persistence/persistence-api/1.0.2/persistence-api-1.0.2.jar lib
+ raries/net/sf/trove4j/trove4j/3.0.3/trove4j-3.0.3.jar minecraft_serve
+ r.1.6.4.jar
+

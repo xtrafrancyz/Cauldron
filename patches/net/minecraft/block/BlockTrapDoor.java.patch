@@ -1,0 +1,36 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockTrapDoor.java
++++ ../src-work/minecraft/net/minecraft/block/BlockTrapDoor.java
+@@ -12,6 +12,7 @@
+ import net.minecraft.world.World;
+ 
+ import net.minecraftforge.common.ForgeDirection;
++import org.bukkit.event.block.BlockRedstoneEvent; // CraftBukkit
+ 
+ public class BlockTrapDoor extends Block
+ {
+@@ -205,11 +206,21 @@
+                 this.dropBlockAsItem(par1World, par2, par3, par4, i1, 0);
+             }
+ 
+-            boolean flag = par1World.isBlockIndirectlyGettingPowered(par2, par3, par4);
+-
+-            if (flag || par5 > 0 && Block.blocksList[par5].canProvidePower())
++            // CraftBukkit start
++            if (par5 == 0 || par5 > 0 && Block.blocksList[par5] != null && Block.blocksList[par5].canProvidePower())
+             {
+-                this.onPoweredBlockChange(par1World, par2, par3, par4, flag);
++                org.bukkit.World bworld = par1World.getWorld();
++                org.bukkit.block.Block block = bworld.getBlockAt(par2, par3, par4);
++                int power = block.getBlockPower();
++                int oldPower = (par1World.getBlockMetadata(par2, par3, par4) & 4) > 0 ? 15 : 0;
++
++                if (oldPower == 0 ^ power == 0 || (Block.blocksList[par5] != null && Block.blocksList[par5].canProvidePower()))
++                {
++                    BlockRedstoneEvent eventRedstone = new BlockRedstoneEvent(block, oldPower, power);
++                    par1World.getServer().getPluginManager().callEvent(eventRedstone);
++                    this.onPoweredBlockChange(par1World, par2, par3, par4, eventRedstone.getNewCurrent() > 0);
++                }
++            // CraftBukkit end
+             }
+         }
+     }

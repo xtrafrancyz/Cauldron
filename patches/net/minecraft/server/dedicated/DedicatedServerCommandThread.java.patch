@@ -1,0 +1,63 @@
+--- ../src-base/minecraft/net/minecraft/server/dedicated/DedicatedServerCommandThread.java
++++ ../src-work/minecraft/net/minecraft/server/dedicated/DedicatedServerCommandThread.java
+@@ -4,30 +4,56 @@
+ import java.io.IOException;
+ import java.io.InputStreamReader;
+ 
++import static net.minecraft.server.MinecraftServer.*; // Cauldron
++
+ class DedicatedServerCommandThread extends Thread
+ {
+     final DedicatedServer server;
+ 
+     DedicatedServerCommandThread(DedicatedServer par1DedicatedServer)
+     {
++        super("Command Reader");
+         this.server = par1DedicatedServer;
+     }
+ 
+     public void run()
+     {
+-        BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(System.in));
++        // CraftBukkit start
++        if (!useConsole)
++        {
++            return;
++        }
++
++        // CraftBukkit end
++        jline.console.ConsoleReader bufferedreader = this.server.reader; // CraftBukkit
+         String s;
+ 
+         try
+         {
+-            while (!this.server.isServerStopped() && this.server.isServerRunning() && (s = bufferedreader.readLine()) != null)
++            // CraftBukkit start - JLine disabling compatibility
++            while (!this.server.isServerStopped() && this.server.isServerRunning())
+             {
+-                this.server.addPendingCommand(s, this.server);
++                if (useJline)
++                {
++                    s = bufferedreader.readLine(">", null);
++                }
++                else
++                {
++                    s = bufferedreader.readLine();
++                }
++
++                if (s != null)
++                {
++                    this.server.addPendingCommand(s, this.server);
++                }
++
++                // CraftBukkit end
+             }
+         }
+         catch (IOException ioexception)
+         {
+-            ioexception.printStackTrace();
++            // CraftBukkit
++            java.util.logging.Logger.getLogger("").log(java.util.logging.Level.SEVERE, null, ioexception);
+         }
+     }
+ }

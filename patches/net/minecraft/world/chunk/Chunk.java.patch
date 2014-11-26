@@ -1,0 +1,296 @@
+--- ../src-base/minecraft/net/minecraft/world/chunk/Chunk.java
++++ ../src-work/minecraft/net/minecraft/world/chunk/Chunk.java
+@@ -10,10 +10,13 @@
+ import java.util.Map;
+ import java.util.Random;
+ import net.minecraft.block.Block;
++import net.minecraft.block.BlockContainer;
+ import net.minecraft.block.ITileEntityProvider;
+ import net.minecraft.block.material.Material;
+ import net.minecraft.command.IEntitySelector;
+ import net.minecraft.entity.Entity;
++import net.minecraft.entity.player.EntityPlayerMP;
++import net.minecraft.server.MinecraftServer;
+ import net.minecraft.tileentity.TileEntity;
+ import net.minecraft.util.AxisAlignedBB;
+ import net.minecraft.util.MathHelper;
+@@ -29,6 +32,12 @@
+ import net.minecraftforge.event.entity.EntityEvent;
+ import net.minecraftforge.event.world.ChunkEvent;
+ 
++import org.bukkit.Bukkit; // CraftBukkit
++import org.bukkit.craftbukkit.CraftServer;
++
++import com.google.common.collect.ImmutableList;
++import com.google.common.collect.ImmutableSet;
++
+ public class Chunk
+ {
+     /**
+@@ -109,6 +118,8 @@
+      * Contains the current round-robin relight check index, and is implied as the relight check location as well.
+      */
+     private int queuedLightChecks;
++    public gnu.trove.map.hash.TObjectIntHashMap<Class> entityCount = new gnu.trove.map.hash.TObjectIntHashMap<Class>(); // Spigot (Cauldron protected -> public)
++    public int lastAccessedTick; // Cauldron track last time the chunk was accessed
+ 
+     public Chunk(World par1World, int par2, int par3)
+     {
+@@ -126,13 +137,23 @@
+ 
+         for (int k = 0; k < this.entityLists.length; ++k)
+         {
+-            this.entityLists[k] = new ArrayList();
++            this.entityLists[k] = new org.bukkit.craftbukkit.util.UnsafeList(); // CraftBukkit - ArrayList -> UnsafeList
+         }
+ 
+         Arrays.fill(this.precipitationHeightMap, -999);
+         Arrays.fill(this.blockBiomeArray, (byte) - 1);
++
++        // CraftBukkit start
++        if (!(this instanceof EmptyChunk) && this.worldObj instanceof net.minecraft.world.WorldServer) // Cauldron - ignore fake worlds
++        {
++            this.bukkitChunk = new org.bukkit.craftbukkit.CraftChunk(this);
++        }
+     }
+ 
++    public org.bukkit.Chunk bukkitChunk;
++    public boolean mustSave;
++    // CraftBukkit end
++
+     public Chunk(World par1World, byte[] par2ArrayOfByte, int par3, int par4)
+     {
+         this(par1World, par3, par4);
+@@ -699,6 +720,7 @@
+ 
+             if (l1 != 0 && !this.worldObj.isRemote)
+             {
++                if (Block.blocksList[l1] == null) return false; // Cauldron
+                 Block.blocksList[l1].onBlockPreDestroy(this.worldObj, j2, par2, k2, i2);
+             }
+ 
+@@ -712,7 +734,7 @@
+                 }
+                 else if (Block.blocksList[l1] != null && Block.blocksList[l1].hasTileEntity(i2))
+                 {
+-                    TileEntity te = worldObj.getBlockTileEntity(j2, par2, k2);
++                    TileEntity te = getChunkBlockTileEntityUnsafe(j2 & 0xf, par2, k2 & 0xf);
+                     if (te != null && te.shouldRefresh(l1, par4, i2, par5, worldObj, j2, par2, k2))
+                     {
+                         this.worldObj.removeBlockTileEntity(j2, par2, k2);
+@@ -753,7 +775,8 @@
+ 
+                 if (par4 != 0)
+                 {
+-                    if (!this.worldObj.isRemote)
++                    // CraftBukkit - Don't place while processing the BlockPlaceEvent, unless it has a TileEntity. Prevents blocks such as TNT from activating when cancelled.
++                    if (!this.worldObj.isRemote && (!this.worldObj.captureBlockStates || Block.blocksList[par4].hasTileEntity(par5)))
+                     {
+                         Block.blocksList[par4].onBlockAdded(this.worldObj, j2, par2, k2);
+                     }
+@@ -775,7 +798,16 @@
+                         }
+                     }
+                 }
++                else if (l1 > 0 && Block.blocksList[l1] instanceof ITileEntityProvider)
++                {
++                    tileentity = this.getChunkBlockTileEntity(par1, par2, par3);
+ 
++                    if (tileentity != null)
++                    {
++                        tileentity.updateContainingBlockInfo();
++                    }
++                }
++
+                 this.isModified = true;
+                 return true;
+             }
+@@ -904,8 +936,19 @@
+ 
+         if (i != this.xPosition || j != this.zPosition)
+         {
+-            this.worldObj.getWorldLogAgent().logSevere("Wrong location! " + par1Entity);
+-            Thread.dumpStack();
++            // CraftBukkit start
++            Bukkit.getLogger().warning("Wrong location for " + par1Entity + " in world '" + worldObj.getWorld().getName() + "'!");
++            // Thread.dumpStack();
++            Bukkit.getLogger().warning("Entity is at " + par1Entity.posX + "," + par1Entity.posZ + " (chunk " + i + "," + j + ") but was stored in chunk " + this.xPosition + "," + this.zPosition);
++            // CraftBukkit end
++            // Cauldron start - remove invalid entity to prevent a server crash
++            if (!(par1Entity instanceof EntityPlayerMP))
++            {
++                Bukkit.getLogger().warning("Cauldron has removed " + par1Entity + " to prevent a server crash.");
++                par1Entity.setDead();
++                return;
++            }
++            // Cauldron end
+         }
+ 
+         int k = MathHelper.floor_double(par1Entity.posY / 16.0D);
+@@ -926,6 +969,22 @@
+         par1Entity.chunkCoordY = k;
+         par1Entity.chunkCoordZ = this.zPosition;
+         this.entityLists[k].add(par1Entity);
++        // Spigot start - increment creature type count
++        // Keep this synced up with World.a(Class)
++        if (par1Entity instanceof net.minecraft.entity.EntityLiving) {
++            net.minecraft.entity.EntityLiving entityliving = (net.minecraft.entity.EntityLiving) par1Entity;
++            if (entityliving.func_70692_ba_CodeFix_Public() && entityliving.isNoDespawnRequired()) {
++                return;
++            }
++        }
++        for ( net.minecraft.entity.EnumCreatureType creatureType : net.minecraft.entity.EnumCreatureType.values() )
++        {
++            if ( creatureType.getCreatureClass().isAssignableFrom( par1Entity.getClass() ) )
++            {
++                this.entityCount.adjustOrPutValue( creatureType.getCreatureClass(), 1, 1 );
++            }
++        }
++        // Spigot end
+     }
+ 
+     /**
+@@ -952,6 +1011,22 @@
+         }
+ 
+         this.entityLists[par2].remove(par1Entity);
++        // Spigot start - decrement creature type count
++        // Keep this synced up with World.a(Class)
++        if (par1Entity instanceof net.minecraft.entity.EntityLiving) {
++            net.minecraft.entity.EntityLiving entityliving = (net.minecraft.entity.EntityLiving) par1Entity;
++            if (entityliving.func_70692_ba_CodeFix_Public() && entityliving.isNoDespawnRequired()) {
++                return;
++            }
++        }
++        for ( net.minecraft.entity.EnumCreatureType creatureType : net.minecraft.entity.EnumCreatureType.values() )
++        {
++            if ( creatureType.getCreatureClass().isAssignableFrom( par1Entity.getClass() ) )
++            {
++                this.entityCount.adjustOrPutValue( creatureType.getCreatureClass(), 1, -1 );
++            }
++        }
++        // Spigot end
+     }
+ 
+     /**
+@@ -1025,7 +1100,19 @@
+         par4TileEntity.yCoord = par2;
+         par4TileEntity.zCoord = this.zPosition * 16 + par3;
+ 
+-        Block block = Block.blocksList[getBlockID(par1, par2, par3)];
++        // Cauldron start - validate TE for corrupted data
++        Block block = null;
++        try
++        {
++            block = Block.blocksList[getBlockID(par1, par2, par3)];
++        }
++        catch (ArrayIndexOutOfBoundsException e)
++        {
++            System.out.println("ERROR: Detected corrupted TileEntity " + par4TileEntity + " with bad extended block ID of " + ((par2 & 15) << 8 | par3 << 4 | par1) + " @  " + par4TileEntity.xCoord + ", " + par4TileEntity.yCoord + ", " + par4TileEntity.zCoord + ". Removing TE to avoid crash...");
++            par4TileEntity.invalidate();
++            return;
++        }
++        // Cauldron end
+         if (block != null && block.hasTileEntity(getBlockMetadata(par1, par2, par3)))
+         {
+             if (this.chunkTileEntityMap.containsKey(chunkposition))
+@@ -1035,7 +1122,18 @@
+ 
+             par4TileEntity.validate();
+             this.chunkTileEntityMap.put(chunkposition, par4TileEntity);
++            // CraftBukkit start
+         }
++        else
++        {
++            if (!net.minecraftforge.cauldron.configuration.CauldronConfig.tileEntityPlaceLogging.getValue()) return; // Cauldron
++
++            System.out.println("Attempted to place a tile entity (" + par4TileEntity + ") at " + par4TileEntity.xCoord + "," + par4TileEntity.yCoord + "," + par4TileEntity.zCoord
++                               + " (" + org.bukkit.Material.getMaterial(getBlockID(par1, par2, par3)) + ") where there was no entity tile!");
++            System.out.println("Chunk coordinates: " + (this.xPosition * 16) + "," + (this.zPosition * 16));
++            new Exception().printStackTrace();
++            // CraftBukkit end
++        }
+     }
+ 
+     /**
+@@ -1095,6 +1193,22 @@
+ 
+         for (int i = 0; i < this.entityLists.length; ++i)
+         {
++            // CraftBukkit start
++            java.util.Iterator<Object> iter = this.entityLists[i].iterator();
++
++            while (iter.hasNext())
++            {
++                Entity entity = (Entity) iter.next();
++
++                // Do not pass along players, as doing so can get them stuck outside of time.
++                // (which for example disables inventory icon updates and prevents block breaking)
++                if (entity instanceof EntityPlayerMP)
++                {
++                    iter.remove();
++                }
++            }
++
++            // CraftBukkit end
+             this.worldObj.unloadEntities(this.entityLists[i]);
+         }
+         MinecraftForge.EVENT_BUS.post(new ChunkEvent.Unload(this));
+@@ -1270,7 +1384,7 @@
+             while (i1 > 0 && l == -1)
+             {
+                 int j1 = this.getBlockID(par1, i1, par2);
+-                Material material = j1 == 0 ? Material.air : Block.blocksList[j1].blockMaterial;
++                Material material = j1 == 0  || Block.blocksList[j1] == null ? Material.air : Block.blocksList[j1].blockMaterial; // Cauldron
+ 
+                 if (!material.blocksMovement() && !material.isLiquid())
+                 {
+@@ -1348,7 +1462,7 @@
+      */
+     public void fillChunk(byte[] par1ArrayOfByte, int par2, int par3, boolean par4)
+     {
+-        Iterator iterator = chunkTileEntityMap.values().iterator();
++        Iterator iterator = ImmutableList.copyOf(chunkTileEntityMap.values()).iterator(); // Cauldron use an immutable list to iterate here
+         while(iterator.hasNext())
+         {
+             TileEntity tileEntity = (TileEntity)iterator.next();
+@@ -1459,7 +1573,7 @@
+         this.generateHeightMap();
+ 
+         List<TileEntity> invalidList = new ArrayList<TileEntity>();
+-        iterator = chunkTileEntityMap.values().iterator();
++        iterator = ImmutableList.copyOf(chunkTileEntityMap.values()).iterator(); // Cauldron use an immutable list to iterate here
+         while (iterator.hasNext())
+         {
+             TileEntity tileEntity = (TileEntity)iterator.next();
+@@ -1599,4 +1713,30 @@
+             }
+         }
+     }
++
++    /** FORGE: backport TE false creation fix */
++    /**
++     *
++     * Retrieves the tile entity, WITHOUT creating it. Good for checking if it
++     * exists.
++     *
++     * @param x
++     * @param y
++     * @param z
++     * @return The tile entity at the specified location, if it exists and is
++     *         valid.
++     */
++    public TileEntity getChunkBlockTileEntityUnsafe(int x, int y, int z)
++    {
++        ChunkPosition chunkposition = new ChunkPosition(x, y, z);
++        TileEntity tileentity = (TileEntity) this.chunkTileEntityMap.get(chunkposition);
++
++        if (tileentity != null && tileentity.isInvalid())
++        {
++            chunkTileEntityMap.remove(chunkposition);
++            tileentity = null;
++        }
++
++        return tileentity;
++    }
+ }

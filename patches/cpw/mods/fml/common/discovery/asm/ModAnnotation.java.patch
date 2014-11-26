@@ -1,0 +1,20 @@
+--- ../src-base/minecraft/cpw/mods/fml/common/discovery/asm/ModAnnotation.java
++++ ../src-work/minecraft/cpw/mods/fml/common/discovery/asm/ModAnnotation.java
+@@ -44,7 +44,9 @@
+     String member;
+     Map<String,Object> values = Maps.newHashMap();
+     private ArrayList<Object> arrayList;
++    private Object array;
+     private String arrayName;
++    private ModAnnotation parent;
+     public ModAnnotation(AnnotationType type, Type asmType, String member)
+     {
+         this.type = type;
+@@ -56,6 +58,7 @@
+     {
+         this.type = type;
+         this.asmType = asmType;
++        this.parent = parent;
+     }
+     @Override
+     public String toString()

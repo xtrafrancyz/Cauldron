@@ -1,0 +1,23 @@
+--- ../src-base/minecraft/net/minecraftforge/common/WorldSpecificSaveHandler.java
++++ ../src-work/minecraft/net/minecraftforge/common/WorldSpecificSaveHandler.java
+@@ -1,6 +1,7 @@
+ package net.minecraftforge.common;
+ 
+ import java.io.File;
++import java.util.UUID; // Cauldron
+ 
+ import net.minecraft.world.chunk.storage.IChunkLoader;
+ import net.minecraft.world.storage.IPlayerFileData;
+@@ -41,4 +42,12 @@
+     {
+         return new File(dataDir, name + ".dat");
+     }
++
++    // Cauldron start
++    @Override
++    public UUID getUUID() {
++        // TODO Auto-generated method stub
++        return null;
++    }
++    // Cauldron end
+ }

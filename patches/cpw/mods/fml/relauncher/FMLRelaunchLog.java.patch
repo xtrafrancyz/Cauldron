@@ -1,0 +1,58 @@
+--- ../src-base/minecraft/cpw/mods/fml/relauncher/FMLRelaunchLog.java
++++ ../src-work/minecraft/cpw/mods/fml/relauncher/FMLRelaunchLog.java
+@@ -33,7 +33,8 @@
+ public class FMLRelaunchLog
+ {
+ 
+-    private static class ConsoleLogWrapper extends Handler
++    public static boolean useOnlyThisLogger = false; // Cauldron - FML logger vs. CB logger
++    public static class ConsoleLogWrapper extends Handler // Cauldron private -> public
+     {
+         @Override
+         public void publish(LogRecord record)
+@@ -65,9 +66,9 @@
+         }
+ 
+     }
+-    private static class ConsoleLogThread implements Runnable
++    public static class ConsoleLogThread implements Runnable // Cauldron private -> public
+     {
+-        static ConsoleHandler wrappedHandler = new ConsoleHandler();
++        public static ConsoleHandler wrappedHandler = new ConsoleHandler(); // Cauldron private -> public
+         static LinkedBlockingQueue<LogRecord> recordQueue = new LinkedBlockingQueue<LogRecord>();
+         @Override
+         public void run()
+@@ -165,10 +166,15 @@
+         log.myLog = Logger.getLogger("ForgeModLoader");
+         LogWrapper.retarget(log.myLog);
+ 
++        // Cauldron start - FML and CraftBukkit logging compatibility - add conditional
+         Logger stdOut = Logger.getLogger("STDOUT");
+-        stdOut.setParent(log.myLog);
+         Logger stdErr = Logger.getLogger("STDERR");
+-        stdErr.setParent(log.myLog);
++        if (useOnlyThisLogger)
++        {
++            stdOut.setParent(log.myLog);
++            stdErr.setParent(log.myLog);
++        }
++        // Cauldron end
+         log.myLog.setLevel(Level.ALL);
+         log.myLog.setUseParentHandlers(false);
+         consoleLogThread = new Thread(new ConsoleLogThread());
+@@ -195,8 +201,13 @@
+         // Set system out to a log stream
+         errCache = System.err;
+ 
+-        System.setOut(new PrintStream(new LoggingOutStream(stdOut), true));
+-        System.setErr(new PrintStream(new LoggingOutStream(stdErr), true));
++        // Cauldron start - conditional
++        if (useOnlyThisLogger)
++        {
++            System.setOut(new PrintStream(new LoggingOutStream(stdOut), true));
++            System.setErr(new PrintStream(new LoggingOutStream(stdErr), true));
++        }
++        // Cauldron end
+ 
+         configured = true;
+     }

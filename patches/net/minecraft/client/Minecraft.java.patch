@@ -1,0 +1,28 @@
+--- ../src-base/minecraft/net/minecraft/client/Minecraft.java
++++ ../src-work/minecraft/net/minecraft/client/Minecraft.java
+@@ -117,6 +117,7 @@
+ import net.minecraft.util.Session;
+ import net.minecraft.util.Timer;
+ import net.minecraft.util.Util;
++import net.minecraft.world.MinecraftException;
+ import net.minecraft.world.WorldSettings;
+ import net.minecraft.world.chunk.storage.AnvilSaveConverter;
+ import net.minecraft.world.storage.ISaveFormat;
+@@ -2437,7 +2438,16 @@
+ 
+             if (integratedserver != null)
+             {
+-                integratedserver.stopServer();
++                // Cauldron start
++                try
++                {
++                    integratedserver.stopServer();
++                }
++                catch (MinecraftException e)
++                {
++                    e.printStackTrace();
++                }
++                // Cauldron end
+             }
+         }
+     }

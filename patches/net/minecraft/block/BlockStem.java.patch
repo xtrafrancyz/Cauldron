@@ -1,0 +1,36 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockStem.java
++++ ../src-work/minecraft/net/minecraft/block/BlockStem.java
+@@ -15,6 +15,7 @@
+ import net.minecraft.world.World;
+ 
+ import net.minecraftforge.common.ForgeDirection;
++import org.bukkit.craftbukkit.event.CraftEventFactory; // CraftBukkit
+ 
+ public class BlockStem extends BlockFlower
+ {
+@@ -53,14 +54,13 @@
+         {
+             float f = this.getGrowthModifier(par1World, par2, par3, par4);
+ 
+-            if (par5Random.nextInt((int)(25.0F / f) + 1) == 0)
++            if (par5Random.nextInt((int)(par1World.growthOdds / (this.blockID == Block.pumpkinStem.blockID ? par1World.spigotConfig.pumpkinModifier : par1World.spigotConfig.melonModifier) * (25.0F / f)) + 1) == 0) // Spigot
+             {
+                 int l = par1World.getBlockMetadata(par2, par3, par4);
+ 
+                 if (l < 7)
+                 {
+-                    ++l;
+-                    par1World.setBlockMetadataWithNotify(par2, par3, par4, l, 2);
++                    CraftEventFactory.handleBlockGrowEvent(par1World, par2, par3, par4, this.blockID, ++l); // CraftBukkit
+                 }
+                 else
+                 {
+@@ -113,7 +113,7 @@
+                     boolean isSoil = (blocksList[l1] != null && blocksList[l1].canSustainPlant(par1World, j1, par3 - 1, k1, ForgeDirection.UP, this));
+                     if (par1World.isAirBlock(j1, par3, k1) && (isSoil || l1 == Block.dirt.blockID || l1 == Block.grass.blockID))
+                     {
+-                        par1World.setBlock(j1, par3, k1, this.fruitType.blockID);
++                        CraftEventFactory.handleBlockGrowEvent(par1World, j1, par3, k1, this.fruitType.blockID, 0); // CraftBukkit
+                     }
+                 }
+             }

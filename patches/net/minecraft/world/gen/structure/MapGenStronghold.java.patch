@@ -1,0 +1,21 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/structure/MapGenStronghold.java
++++ ../src-work/minecraft/net/minecraft/world/gen/structure/MapGenStronghold.java
+@@ -82,7 +82,17 @@
+                 int j1 = (int)Math.round(Math.sin(d0) * d1);
+                 ArrayList arraylist = new ArrayList();
+                 Collections.addAll(arraylist, this.allowedBiomeGenBases);
+-                ChunkPosition chunkposition = this.worldObj.getWorldChunkManager().findBiomePosition((i1 << 4) + 8, (j1 << 4) + 8, 112, arraylist, random);
++                // Cauldron start - catch invalid positions
++                ChunkPosition chunkposition = null;
++                try 
++                {
++                    chunkposition = this.worldObj.getWorldChunkManager().findBiomePosition((i1 << 4) + 8, (j1 << 4) + 8, 112, arraylist, random);
++                }
++                catch (ArrayIndexOutOfBoundsException e)
++                {
++                    // ignore
++                }
++                // Cauldron end
+ 
+                 if (chunkposition != null)
+                 {

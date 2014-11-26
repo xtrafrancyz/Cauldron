@@ -1,0 +1,13 @@
+--- ../src-base/minecraft/cpw/mods/fml/common/FMLDummyContainer.java
++++ ../src-work/minecraft/cpw/mods/fml/common/FMLDummyContainer.java
+@@ -50,7 +50,9 @@
+         meta.authorList=Arrays.asList("cpw, LexManos");
+         meta.description="The Forge Mod Loader provides the ability for systems to load mods " +
+                     "from the file system. It also provides key capabilities for mods to be able " +
+-                    "to cooperate and provide a good modding environment. ";
++                    "to cooperate and provide a good modding environment. " +
++                    "The mod loading system is compatible with ModLoader, all your ModLoader " +
++                    "mods should work.";
+         meta.url="https://github.com/MinecraftForge/FML/wiki";
+         meta.updateUrl="https://github.com/MinecraftForge/FML/wiki";
+         meta.screenshots=new String[0];

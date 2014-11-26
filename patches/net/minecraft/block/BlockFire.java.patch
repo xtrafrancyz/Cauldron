@@ -1,0 +1,137 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockFire.java
++++ ../src-work/minecraft/net/minecraft/block/BlockFire.java
+@@ -13,6 +13,11 @@
+ 
+ import net.minecraftforge.common.ForgeDirection;
+ import static net.minecraftforge.common.ForgeDirection.*;
++// CraftBukkit start
++import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.event.block.BlockBurnEvent;
++import org.bukkit.event.block.BlockSpreadEvent;
++// CraftBukkit end
+ 
+ public class BlockFire extends Block
+ {
+@@ -132,12 +137,12 @@
+ 
+             if (!this.canPlaceBlockAt(par1World, par2, par3, par4))
+             {
+-                par1World.setBlockToAir(par2, par3, par4);
++                fireExtinguished(par1World, par2, par3, par4); // CraftBukkit - invalid place location
+             }
+ 
+             if (!flag && par1World.isRaining() && (par1World.canLightningStrikeAt(par2, par3, par4) || par1World.canLightningStrikeAt(par2 - 1, par3, par4) || par1World.canLightningStrikeAt(par2 + 1, par3, par4) || par1World.canLightningStrikeAt(par2, par3, par4 - 1) || par1World.canLightningStrikeAt(par2, par3, par4 + 1)))
+             {
+-                par1World.setBlockToAir(par2, par3, par4);
++                fireExtinguished(par1World, par2, par3, par4); // CraftBukkit - extinguished by rain
+             }
+             else
+             {
+@@ -154,12 +159,12 @@
+                 {
+                     if (!par1World.doesBlockHaveSolidTopSurface(par2, par3 - 1, par4) || l > 3)
+                     {
+-                        par1World.setBlockToAir(par2, par3, par4);
++                        fireExtinguished(par1World, par2, par3, par4); // CraftBukkit - burn out of inflammable block
+                     }
+                 }
+                 else if (!flag && !this.canBlockCatchFire(par1World, par2, par3 - 1, par4, UP) && l == 15 && par5Random.nextInt(4) == 0)
+                 {
+-                    par1World.setBlockToAir(par2, par3, par4);
++                    fireExtinguished(par1World, par2, par3, par4); // CraftBukkit - burn out
+                 }
+                 else
+                 {
+@@ -213,7 +218,29 @@
+                                                 k2 = 15;
+                                             }
+ 
+-                                            par1World.setBlock(i1, k1, j1, this.blockID, k2, 3);
++                                            // CraftBukkit start - Call to stop spread of fire
++                                            if (par1World.getBlockId(i1, k1, j1) != Block.fire.blockID)
++                                            {
++                                                if (CraftEventFactory.callBlockIgniteEvent(par1World, i1, k1, j1, par2, par3, par4).isCancelled())
++                                                {
++                                                    continue;
++                                                }
++
++                                                org.bukkit.Server server = par1World.getServer();
++                                                org.bukkit.World bworld = par1World.getWorld();
++                                                org.bukkit.block.BlockState blockState = bworld.getBlockAt(i1, k1, j1).getState();
++                                                blockState.setTypeId(this.blockID);
++                                                blockState.setData(new org.bukkit.material.MaterialData(this.blockID, (byte) k2));
++                                                BlockSpreadEvent spreadEvent = new BlockSpreadEvent(blockState.getBlock(), bworld.getBlockAt(par2, par3, par4), blockState);
++                                                server.getPluginManager().callEvent(spreadEvent);
++
++                                                if (!spreadEvent.isCancelled())
++                                                {
++                                                    blockState.update(true);
++                                                }
++                                            }
++
++                                            // CraftBukkit end
+                                         }
+                                     }
+                                 }
+@@ -246,9 +273,20 @@
+         }
+ 
+         if (par6Random.nextInt(par5) < j1)
+-        {
++        {    
+             boolean flag = par1World.getBlockId(par2, par3, par4) == Block.tnt.blockID;
++            // CraftBukkit start
++            org.bukkit.block.Block theBlock = par1World.getWorld().getBlockAt(par2, par3, par4);
++            BlockBurnEvent event = new BlockBurnEvent(theBlock);
++            par1World.getServer().getPluginManager().callEvent(event);
+ 
++            if (event.isCancelled())
++            {
++                return;
++            }
++
++            // CraftBukkit end
++
+             if (par6Random.nextInt(par7 + 10) < 5 && !par1World.canLightningStrikeAt(par2, par3, par4))
+             {
+                 int k1 = par7 + par6Random.nextInt(5) / 4;
+@@ -354,7 +392,7 @@
+     {
+         if (!par1World.doesBlockHaveSolidTopSurface(par2, par3 - 1, par4) && !this.canNeighborBurn(par1World, par2, par3, par4))
+         {
+-            par1World.setBlockToAir(par2, par3, par4);
++            fireExtinguished(par1World, par2, par3, par4); // CraftBukkit - fuel block gone
+         }
+     }
+ 
+@@ -363,11 +401,11 @@
+      */
+     public void onBlockAdded(World par1World, int par2, int par3, int par4)
+     {
+-        if (par1World.provider.dimensionId > 0 || par1World.getBlockId(par2, par3 - 1, par4) != Block.obsidian.blockID || !Block.portal.tryToCreatePortal(par1World, par2, par3, par4))
++        if (par1World.provider instanceof WorldProviderEnd || par1World.getBlockId(par2, par3 - 1, par4) != Block.obsidian.blockID || !Block.portal.tryToCreatePortal(par1World, par2, par3, par4)) // Cauldron - check WorldProviderEnd directly instead of dimension range. Fixes Multiverse nether portals.
+         {
+             if (!par1World.doesBlockHaveSolidTopSurface(par2, par3 - 1, par4) && !this.canNeighborBurn(par1World, par2, par3, par4))
+             {
+-                par1World.setBlockToAir(par2, par3, par4);
++                fireExtinguished(par1World, par2, par3, par4); // CraftBukkit - fuel block broke
+             }
+             else
+             {
+@@ -488,6 +526,16 @@
+     {
+         return this.iconArray[0];
+     }
++
++    // CraftBukkit start
++    private void fireExtinguished(World world, int x, int y, int z)
++    {
++        if (!CraftEventFactory.callBlockFadeEvent(world.getWorld().getBlockAt(x, y, z), 0).isCancelled())
++        {
++            world.setBlockToAir(x, y, z);
++        }
++    }
++    // CraftBukkit end
+     
+     /**
+      * Side sensitive version that calls the block function.

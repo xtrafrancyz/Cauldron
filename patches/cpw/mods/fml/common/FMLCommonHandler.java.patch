@@ -1,0 +1,80 @@
+--- ../src-base/minecraft/cpw/mods/fml/common/FMLCommonHandler.java
++++ ../src-work/minecraft/cpw/mods/fml/common/FMLCommonHandler.java
+@@ -55,6 +55,10 @@
+ import cpw.mods.fml.common.registry.TickRegistry;
+ import cpw.mods.fml.relauncher.Side;
+ import cpw.mods.fml.server.FMLServerHandler;
++// Cauldron start - add mobius imports
++import java.util.Properties;
++import mcp.mobius.mobiuscore.profiler.ProfilerSection;
++// Cauldron end
+ 
+ 
+ /**
+@@ -118,7 +122,11 @@
+             ticksToRun.retainAll(ticks);
+             if (!ticksToRun.isEmpty())
+             {
++                // Cauldron start - mobius hooks
++            	ProfilerSection.HANDLER_TICKSTART.start(ticker, ticksToRun);
+                 ticker.tickStart(ticksToRun, data);
++                ProfilerSection.HANDLER_TICKSTART.stop(ticker, ticksToRun);
++                // Cauldron end
+             }
+         }
+     }
+@@ -137,7 +145,11 @@
+             ticksToRun.retainAll(ticks);
+             if (!ticksToRun.isEmpty())
+             {
++                // Cauldron start - mobius hooks
++            	ProfilerSection.HANDLER_TICKSTOP.start(ticker, ticksToRun);
+                 ticker.tickEnd(ticksToRun, data);
++                ProfilerSection.HANDLER_TICKSTOP.stop(ticker, ticksToRun);
++                // Cauldron end
+             }
+         }
+     }
+@@ -271,6 +283,7 @@
+     public void onPostServerTick()
+     {
+         tickEnd(EnumSet.of(TickType.SERVER), Side.SERVER);
++    	ProfilerSection.TICK.stop(); // Cauldron - mobius hook
+     }
+ 
+     /**
+@@ -279,10 +292,12 @@
+     public void onPostWorldTick(Object world)
+     {
+         tickEnd(EnumSet.of(TickType.WORLD), Side.SERVER, world);
++    	ProfilerSection.DIMENSION_TICK.stop(world); // Cauldron - mobius hook
+     }
+ 
+     public void onPreServerTick()
+     {
++    	ProfilerSection.TICK.start();
+         tickStart(EnumSet.of(TickType.SERVER), Side.SERVER);
+     }
+ 
+@@ -291,6 +306,7 @@
+      */
+     public void onPreWorldTick(Object world)
+     {
++    	ProfilerSection.DIMENSION_TICK.start(world); // Cauldron - mobius hook
+         tickStart(EnumSet.of(TickType.WORLD), Side.SERVER, world);
+     }
+ 
+@@ -473,7 +489,12 @@
+ 
+     public String getModName()
+     {
+-        List<String> modNames = Lists.newArrayListWithExpectedSize(3);
++        // Cauldron start    
++        List<String> modNames = Lists.newArrayListWithExpectedSize(6);
++        modNames.add("mcpc");
++        modNames.add("cauldron");
++        modNames.add("craftbukkit");
++        // Cauldron end
+         modNames.add("fml");
+         if (!noForge)
+         {
